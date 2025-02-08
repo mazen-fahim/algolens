@@ -8,7 +8,9 @@
 #include <string>
 #include <vector>
 
+#include "GameObject.hpp"
 #include "cell.hpp"
+#include "renderer.hpp"
 
 enum class CellState {
   VISITED,
@@ -18,10 +20,12 @@ enum class CellState {
   WALL,
 };
 
-class Maze {
+class Maze : public GameObject {
  public:
-  Maze(int width, int height, int posx, int posy);
-  bool update();
+  Maze(int x, int y, int width, int height);
+  ~Maze();
+  void draw();
+  void render(const Renderer &renderer);
 
  private:
   // it returns whether or not it actually made and changes to the state of the
@@ -32,29 +36,18 @@ class Maze {
   // it's a wall
   // it's out of range
   bool is_valid(int x, int y);
-  int m_maze_x_pos;
-  int m_maze_y_pos;
-
-  int m_maze_width;
-  int m_maze_height;
 
   const int m_number_of_rows = 25;
   const int m_number_of_cols = 40;
   const int m_number_of_cells = m_number_of_rows * m_number_of_cols;
 
-  int m_cell_width;
-  int m_cell_height;
-
   std::string m_current_algorithm;
-  std::vector<std::vector<CellState>> m_mtrx;
-  std::vector<std::vector<SDL_Rect>> m_cells;
+  std::vector<std::vector<Cell>> m_maze;
 
   std::pair<int, int> m_source;
   std::pair<int, int> m_target;
 
   std::stack<std::pair<int, int>> m_dfs_stk;
-
-  SDL_Rect m_maze_border;
 };
 
 #endif

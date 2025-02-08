@@ -1,28 +1,27 @@
-#include "maze.hpp"
+#include "Maze.hpp"
 
 #include <utility>
 
-Maze::Maze(int width, int height, int posx, int posy)
-    : m_maze_width{width},
-      m_maze_height{height},
-      m_maze_x_pos{posx},
-      m_maze_y_pos{posy} {
-  m_cell_height = m_maze_height / m_number_of_rows;
-  m_cell_width = m_maze_width / m_number_of_cols;
-  m_maze_border.x = posx;
-  m_maze_border.y = posy;
-  m_maze_border.w = width;
-  m_maze_border.h = height;
-  // don't forget to push the source into the stack while initializing the maze.
+#include "GameObject.hpp"
+
+Maze::Maze(int x, int y, int width, int height)
+    : GameObject(x, y, width, height)
+
+{}
+
+void Maze::render(const Renderer &renderer) {
+  SDL_SetRenderDrawColor(renderer, rectangle->red, rectangle->green,
+                         rectangle->blue, rectangle->alpha);
+  SDL_Rect *rect;
+  SDL_RenderFillRect(renderer, rect);
 }
 
-bool Maze::update() {
+void Maze::draw() {
   if (m_current_algorithm == "dfs") {
-    return dfs_ss();
+    dfs_ss();
   } else if (m_current_algorithm == "bfs") {
   } else if (m_current_algorithm == "dijkstra") {
   }
-  return false;
 }
 
 bool Maze::is_valid(int r, int c) {
@@ -36,7 +35,7 @@ bool Maze::is_valid(int r, int c) {
 
 // it returns whether or not it actually made any changes to the state of the
 // maze
-bool Maze::dfs_ss() {
+void Maze::dfs_ss() {
   int dr[] = {1, -1, 0, 0};
   int dc[] = {0, 0, 1, -1};
 
@@ -48,7 +47,7 @@ bool Maze::dfs_ss() {
 
     // Note if two parents share the same child the child will be pushed twice.
     // so if the child is already visited no need to do anything.
-    if (m_mtrx[cnr][cnc] == CellState::VISITED) return false;
+    if (m_mtrx[cnr][cnc] == CellState::VISITED) return;
 
     if (m_mtrx[cnr][cnc] != CellState::VISITED &&
         m_mtrx[cnr][cnc] != CellState::SOURCE) {
@@ -70,6 +69,4 @@ bool Maze::dfs_ss() {
       }
     }
   }
-
-  return true;
 }

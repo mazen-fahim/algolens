@@ -1,6 +1,7 @@
 #include <SDL2/SDL.h>
 #include <SDL_events.h>
 #include <SDL_render.h>
+#include <SDL_stdinc.h>
 #include <SDL_video.h>
 
 #include <iostream>
@@ -45,6 +46,7 @@ int main() {
   Uint32 currentTick = 0;
   Uint32 diff = 0;
   float elapsed = 0;
+
   while (!quit) {
     // event loop
     while (SDL_PollEvent(&event)) {
@@ -58,37 +60,19 @@ int main() {
           break;
       }
     }
-    currentTick = SDL_GetTicks();
-    diff = currentTick - lastTick;
-    elapsed = diff / 1000.0f;
-    maze.update();
-    renderer.draw(maze);
-    lastTick = currentTick;
-    SDL_Delay(100);
+
+    if (!quit) {
+      currentTick = SDL_GetTicks();
+      diff = currentTick - lastTick;
+      elapsed = diff / 1000.0f;
+      maze.update();
+      renderer.draw(maze);
+      lastTick = currentTick;
+      SDL_Delay(100);
+    }
   }
 
   /***** Free memory *****/
   kill();
   return 0;
-}
-
-class Renderer {
- public:
-  Renderer(SDL_Window *window) {
-    // Create renderer
-    m_renderer = SDL_CreateRenderer(
-        window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-    if (!renderer) {
-      cout << "Error creating renderer: " << SDL_GetError() << endl;
-    }
-  }
-
- private:
-  SDL_Renderer *m_renderer;
-};
-
-void draw() {
-  SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-  SDL_RenderClear(renderer);
-  SDL_RenderPresent(renderer);
 }
