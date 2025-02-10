@@ -2,8 +2,6 @@
 #include <SDL.h>
 #include <SDL_rect.h>
 
-#include "Renderer.hpp"
-
 class GameObject {
   //  Constructor
  public:
@@ -14,10 +12,10 @@ class GameObject {
   virtual void draw() = 0;
 
   // Render the object to screen
-  virtual void render(const Renderer &renderer) = 0;
+  virtual void render(SDL_Renderer *renderer) = 0;
 
   // Needs to be virtual to avoid memory leaks
-  virtual ~GameObject();
+  virtual ~GameObject() = default;
 
   // Getters
   int get_x();
@@ -29,7 +27,6 @@ class GameObject {
   int get_blue();
   int get_alpha();
   int get_fill();
-  SDL_Rect *get_rect();
 
   // Setters
   void set_x(int x);
@@ -41,7 +38,6 @@ class GameObject {
   void set_blue(int blue);
   void set_alpha(int alpha);
   void set_fill(bool fill);
-  void set_rect(SDL_Rect *rect);
 
  private:
   int m_x;
@@ -53,5 +49,4 @@ class GameObject {
   int m_blue;
   int m_alpha;
   bool m_fill;
-  SDL_Rect *m_rect;
 };

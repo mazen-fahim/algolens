@@ -1,47 +1,42 @@
-#ifndef MAZEN_H
-#define MAZEN_H
+#pragma once
 
 #include <SDL.h>
 #include <SDL_rect.h>
+#include <SDL_render.h>
 
 #include <stack>
 #include <string>
 #include <vector>
 
+#include "Cell.hpp"
 #include "GameObject.hpp"
-#include "cell.hpp"
-#include "renderer.hpp"
-
-enum class CellState {
-  VISITED,
-  NOT_VISITED,
-  SOURCE,
-  TARGET,
-  WALL,
-};
 
 class Maze : public GameObject {
  public:
-  Maze(int x, int y, int width, int height);
-  ~Maze();
+  Maze(int number_of_rows, int number_of_cols);
+  ~Maze() = default;
   void draw();
-  void render(const Renderer &renderer);
+  void render(SDL_Renderer *renderer);
+
+  // TODO: Error checking
+  void set_algorithm(const std::string &algo);
+  void set_cell_state(int row, int col, CellState state);
+  CellState get_cell_state(int row, int col);
 
  private:
-  // it returns whether or not it actually made and changes to the state of the
-  // maze
-  bool dfs_ss();
+  void dfs_ss();
+  void bfs_ss();
+  void dijkstra_ss();
   // check the validity of this cell
   // cell is not valid if
   // it's a wall
   // it's out of range
   bool is_valid(int x, int y);
+  int m_number_of_rows;
+  int m_number_of_cols;
+  int m_number_of_cells;
 
-  const int m_number_of_rows = 25;
-  const int m_number_of_cols = 40;
-  const int m_number_of_cells = m_number_of_rows * m_number_of_cols;
-
-  std::string m_current_algorithm;
+  std::string m_algorithm;
   std::vector<std::vector<Cell>> m_maze;
 
   std::pair<int, int> m_source;
@@ -49,5 +44,3 @@ class Maze : public GameObject {
 
   std::stack<std::pair<int, int>> m_dfs_stk;
 };
-
-#endif

@@ -1,8 +1,11 @@
 #ifndef DEFS_H
 #define DEFS_H
 
-#define WINDOW_HEIGHT 1280
-#define WINDOW_WIDTH 720
+#define WINDOW_TITLE ("algolens")
+
+#define WINDOW_HEIGHT 720
+#define WINDOW_WIDTH 1280
+#define CELL_SIZE 25
 
 #define ALGO_WINDOW_HEIGHT
 #define ALGO_WINDOW_WIDTH

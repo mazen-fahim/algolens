@@ -24,6 +24,10 @@ find_package(SDL2 REQUIRED CONFIG COMPONENTS SDL2main)
 # Add Executable
 add_executable(algolens
   src/main.cpp
+  src/GameObject.cpp
+  src/Maze.cpp
+  src/Cell.cpp
+  src/EventHandler.cpp
 )
 
 # SDL2::SDL2main may or may not be available. It is e.g. required by Windows GUI applications

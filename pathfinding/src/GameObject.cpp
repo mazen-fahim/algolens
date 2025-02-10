@@ -10,15 +10,7 @@ GameObject::GameObject(int x, int y, int width, int height, int red, int green,
       m_green{green},
       m_blue{blue},
       m_alpha{alpha},
-      m_fill{fill} {
-  m_rect = new SDL_Rect;
-  m_rect->x = x;
-  m_rect->y = y;
-  m_rect->w = width;
-  m_rect->h = height;
-}
-
-GameObject::~GameObject() { delete m_rect; }
+      m_fill{fill} {}
 
 // Getters
 int GameObject::get_x() { return m_x; }
@@ -30,7 +22,6 @@ int GameObject::get_green() { return m_green; }
 int GameObject::get_blue() { return m_blue; }
 int GameObject::get_alpha() { return m_alpha; }
 int GameObject::get_fill() { return m_fill; }
-SDL_Rect *GameObject::get_rect() { return m_rect; }
 
 // Setters
 void GameObject::set_x(int x) { m_x = x; }
@@ -42,4 +33,3 @@ void GameObject::set_green(int green) { m_green = green; }
 void GameObject::set_blue(int blue) { m_blue = blue; }
 void GameObject::set_alpha(int alpha) { m_alpha = alpha; }
 void GameObject::set_fill(bool fill) { m_fill = fill; }
-void GameObject::set_rect(SDL_Rect *rect) { m_rect = rect; }
