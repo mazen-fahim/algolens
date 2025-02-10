@@ -38,11 +38,14 @@ class Maze : public GameObject {
   void set_cell_state(std::pair<int, int> cell_id, CellState state);
 
  private:
+  void construct_shortest_path();
   void dfs_ss();
   void bfs_ss();
   void dijkstra_ss();
-  bool is_valid(int x, int y);
+  bool is_valid(std::pair<int, int> cell_id);
   bool is_inside(int x, int y);
+  bool is_not_visited(std::pair<int, int> cell_id);
+  bool is_visited(std::pair<int, int> cell_id);
   int m_number_of_rows;
   int m_number_of_cols;
   int m_number_of_cells;
@@ -52,10 +55,14 @@ class Maze : public GameObject {
 
   std::pair<int, int> m_source;
   std::pair<int, int> m_target;
+  std::vector<std::vector<std::pair<int, int>>> m_parent;
 
   std::stack<std::pair<int, int>> m_dfs_stk;
   std::queue<std::pair<int, int>> m_bfs_q;
   std::queue<std::pair<int, int>> m_dijkstra_q;
   bool m_target_found;
-  std::vector<std::pair<int, int>> path;
+  std::vector<std::pair<int, int>> m_path;
+  int m_path_length;
+  bool m_path_animation_finished;
+  int m_path_index;
 };

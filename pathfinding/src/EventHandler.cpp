@@ -1,7 +1,5 @@
 #include "EventHandler.hpp"
 
-#include <iostream>
-
 #include "Cell.hpp"
 
 EventHandler::EventHandler() {

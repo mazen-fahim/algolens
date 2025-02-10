@@ -11,14 +11,14 @@ Cell::Cell(int x, int y, int width, int height, int red, int green, int blue,
 void Cell::draw() {
   if (m_state == CellState::VISITED) {
     set_red(54);
-    set_blue(23);
-    set_green(77);
+    set_green(23);
+    set_blue(77);
     set_alpha(255);
     set_fill(true);
   } else if (m_state == CellState::NOT_VISITED) {
     set_red(0);
-    set_blue(0);
     set_green(0);
+    set_blue(0);
     set_alpha(255);
     set_fill(false);
   } else if (m_state == CellState::TARGET) {
@@ -35,14 +35,14 @@ void Cell::draw() {
     set_fill(true);
   } else if (m_state == CellState::WALL) {
     set_red(0);
-    set_blue(0);
     set_green(0);
+    set_blue(0);
     set_alpha(0);
     set_fill(true);
   } else if (m_state == CellState::SHORTEST_PATH) {
-    set_red(52);
-    set_blue(46);
-    set_green(68);
+    set_red(255);
+    set_green(234);
+    set_blue(0);
     set_alpha(255);
     set_fill(true);
   }
