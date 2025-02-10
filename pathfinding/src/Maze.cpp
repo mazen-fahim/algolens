@@ -32,24 +32,30 @@ Maze::Maze(int number_of_rows, int number_of_cols)
     m_maze.emplace_back(std::move(cells));
   }
 
-  int default_src_col = m_number_of_cols / 4;
-  int default_src_row = m_number_of_rows / 4;
-  int default_target_col = m_number_of_cols * 3 / 4;
-  int default_target_row = m_number_of_rows * 3 / 4;
-  m_maze[default_src_row][default_src_col].set_state(CellState::SOURCE);
-  m_maze[default_target_row][default_target_col].set_state(CellState::TARGET);
+  // Set default position for source/target cells.
+  std::pair<int, int> m_source = {0, 0};
+  std::pair<int, int> m_target = {0, 0};
+  m_source.first = m_number_of_rows / 4;
+  m_source.second = m_number_of_cols / 4;
+  m_target.first = m_number_of_rows * 3 / 4;
+  m_target.second = m_number_of_cols * 3 / 4;
+  set_source_cell(m_source);
+  set_target_cell(m_target);
 
-  m_dfs_stk.push({default_src_row, default_src_col});
+  m_dfs_stk.push(m_source);
+  m_target_found = false;
 }
 
 void Maze::draw() {
-  if (m_algorithm == "dfs") {
-    dfs_ss();
-  }
-  // else if (m_algorithm == "bfs") {
-  //   bfs_ss();
-  // } else if (m_algorithm == "dijkstra") {
-  //   dijkstra_ss();
+  // if (!m_target_found) {
+  //   if (m_algorithm == "dfs") {
+  //     dfs_ss();
+  //   }
+  //   // else if (m_algorithm == "bfs") {
+  //   //   bfs_ss();
+  //   // } else if (m_algorithm == "dijkstra") {
+  //   //   dijkstra_ss();
+  //   // }
   // }
 
   // update all of the cells states
@@ -87,38 +93,31 @@ bool Maze::is_valid(int r, int c) {
   return true;
 }
 
-// it returns whether or not it actually made any changes to the state of the
-// maze
 void Maze::dfs_ss() {
-  int dr[] = {1, -1, 0, 0};
-  int dc[] = {0, 0, 1, -1};
-
   if (!m_dfs_stk.empty()) {
-    auto cn = m_dfs_stk.top();
+    int dr[] = {1, -1, 0, 0};
+    int dc[] = {0, 0, 1, -1};
+    auto [cnr, cnc] = m_dfs_stk.top();
     m_dfs_stk.pop();
-    int cnr = cn.first;
-    int cnc = cn.second;
 
-    // Note if two parents share the same child the child will be pushed twice.
-    // so if the child is already visited no need to do anything.
     if (m_maze[cnr][cnc].get_state() == CellState::VISITED) return;
 
-    if (m_maze[cnr][cnc].get_state() != CellState::VISITED &&
-        m_maze[cnr][cnc].get_state() != CellState::SOURCE) {
+    if (m_maze[cnr][cnc].get_state() == CellState::TARGET) {
+      m_target_found = true;
+      return;
+    }
+
+    if (m_maze[cnr][cnc].get_state() == CellState::NOT_VISITED) {
       m_maze[cnr][cnc].set_state(CellState::VISITED);
     }
 
-    // so you would think this should be also single stepped through but in fact
-    // pushing the 4 children of a particular cell is not actually transitioning
-    // to these children I'm just preparing the stack for the next step in the
-    // dfs algorithm
     for (int i = 0; i < 4; i++) {
       int new_r = dr[i] + cnr;
-      int new_c = dr[i] + cnr;
+      int new_c = dc[i] + cnc;
       if (is_valid(new_r, new_c) &&
           // note if the state is SOURCE then it's of course visited
-          m_maze[new_r][new_c].get_state() != CellState::VISITED &&
-          m_maze[new_r][new_c].get_state() != CellState::SOURCE) {
+          (m_maze[new_r][new_c].get_state() == CellState::NOT_VISITED ||
+           m_maze[new_r][new_c].get_state() == CellState::TARGET)) {
         m_dfs_stk.push({new_r, new_c});
       }
     }
@@ -127,10 +126,39 @@ void Maze::dfs_ss() {
 
 void Maze::set_algorithm(const std::string &algo) { m_algorithm = algo; }
 
-void Maze::set_cell_state(int row, int col, CellState state) {
-  m_maze[row][col].set_state(state);
+void Maze::set_cell_state(std::pair<int, int> cell_id, CellState state) {
+  m_maze[cell_id.first][cell_id.second].set_state(state);
 }
 
-CellState Maze::get_cell_state(int row, int col) {
-  return m_maze[row][col].get_state();
+CellState Maze::get_cell_state(std::pair<int, int> cell_id) {
+  return m_maze[cell_id.first][cell_id.second].get_state();
 }
+
+bool Maze::is_inside(int x, int y) {
+  return (x >= get_x() && x < get_x() + get_width() && y >= get_y() &&
+          y < get_y() + get_height());
+}
+
+std::pair<int, int> Maze::get_cell_id(int x, int y) {
+  if (!is_inside(x, y))
+    return {-1, -1};
+  else {
+    int cell_r = (y - get_y()) / CELL_SIZE;
+    int cell_c = (x - get_x()) / CELL_SIZE;
+    return {cell_r, cell_c};
+  }
+}
+void Maze::set_source_cell(std::pair<int, int> source_cell) {
+  set_cell_state(m_source, CellState::NOT_VISITED);
+  m_source = source_cell;
+  set_cell_state(m_source, CellState::SOURCE);
+}
+std::pair<int, int> Maze::get_source_cell_id() { return m_source; }
+
+void Maze::set_target_cell(std::pair<int, int> target_cell) {
+  set_cell_state(m_target, CellState::NOT_VISITED);
+  m_target = target_cell;
+  set_cell_state(m_target, CellState::TARGET);
+}
+
+std::pair<int, int> Maze::get_target_cell_id() { return m_target; }

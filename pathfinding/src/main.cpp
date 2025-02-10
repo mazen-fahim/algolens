@@ -77,7 +77,7 @@ int main() {
           event_handler.handle_mouse_down(maze);
           break;
         case SDL_MOUSEBUTTONUP:
-          event_handler.handle_mouse_up();
+          event_handler.handle_mouse_up(maze);
           break;
       }
     }
@@ -86,13 +86,13 @@ int main() {
       currentTick = SDL_GetTicks();
       diff = currentTick - lastTick;
       elapsed = diff / 1000.0f;
-      SDL_SetRenderDrawColor(renderer, 230, 230, 230, 255);  // Black background
+      SDL_SetRenderDrawColor(renderer, 230, 230, 230, 255);
       SDL_RenderClear(renderer);
       maze.draw();
       maze.render(renderer);
       SDL_RenderPresent(renderer);
       lastTick = currentTick;
-      SDL_Delay(100);
+      SDL_Delay(16 - elapsed);  // 60 fps
     }
   }
 

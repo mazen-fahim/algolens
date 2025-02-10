@@ -9,13 +9,14 @@ class EventHandler {
   ~EventHandler() = default;
 
   void handle_mouse_down(Maze &maze);
-  void handle_mouse_up();
+  void handle_mouse_up(Maze &maze);
 
   void handle_mouse_motition(Maze &maze);
   void set_event(SDL_Event event);
 
  private:
+  bool m_target_pressed_down;
+  bool m_source_pressed_down;
   SDL_Event m_event;
-  std::pair<int, int> get_cell_id(int mouse_x, int mouse_y, Maze &maze);
   bool m_mouse_button_down;
 };
