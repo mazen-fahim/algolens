@@ -1,4 +1,5 @@
 #include <SDL2/SDL.h>
+#include <SDL_error.h>
 #include <SDL_events.h>
 #include <SDL_render.h>
 #include <SDL_stdinc.h>
@@ -23,15 +24,21 @@ void kill() {
   SDL_Quit();
 }
 
-int main() {
+int main(int argc, char *argv[]) {
   /***** Initialization (window and renderer) ******/
   srand((unsigned int)time(NULL));
 
-  // Initialize SDL
-  if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) != 0) {
-    printf("Failed to initialize SDL: %s\n", SDL_GetError());
-    exit(1);
+  // Setup SDL
+  if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER) !=
+      0) {
+    std::cout << "Error: " << SDL_GetError() << std::endl;
+    return -1;
   }
+
+  // From 2.0.18: Enable native IME.
+#ifdef SDL_HINT_IME_SHOW_UI
+  SDL_SetHint(SDL_HINT_IME_SHOW_UI, "1");
+#endif
 
   // Create window
   window = SDL_CreateWindow(WINDOW_TITLE, SDL_WINDOWPOS_UNDEFINED,

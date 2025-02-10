@@ -7,6 +7,7 @@ EventHandler::EventHandler() {
   m_source_pressed_down = false;
   m_target_pressed_down = false;
 }
+
 void EventHandler::handle_mouse_down(Maze &maze) {
   m_mouse_button_down = true;
   int x, y;

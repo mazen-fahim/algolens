@@ -101,17 +101,6 @@ void Maze::render(SDL_Renderer *renderer) {
   }
 }
 
-bool Maze::is_valid(std::pair<int, int> cell_id) {
-  // this cell is out of range
-  int r = cell_id.first;
-  int c = cell_id.second;
-  if (r < 0 || r >= m_number_of_rows || c < 0 || c >= m_number_of_cols)
-    return false;
-  // this cell is a wall
-  if (m_maze[r][c].get_state() == CellState::WALL) return false;
-  return true;
-}
-
 void Maze::dfs_ss() {
   if (m_dfs_stk.empty()) return;
 
@@ -121,8 +110,16 @@ void Maze::dfs_ss() {
   std::pair<int, int> current_cell = m_dfs_stk.top();
   m_dfs_stk.pop();
 
-  if (is_visited(current_cell)) return;
+  // You would think a "WALL" would never be pushed on the stack
+  // to begin with, but the animation is interactive and the user can put
+  // walls while the algorithm is running. so make sure that you don't process
+  // "WALL" cells that are added at runtime.
+  if (get_cell_state(current_cell) == CellState::WALL) return;
 
+  // was visited before
+  if (get_cell_state(current_cell) == CellState::VISITED) return;
+
+  // found target
   if (get_cell_state(current_cell) == CellState::TARGET) {
     construct_shortest_path();
     m_target_found = true;
@@ -146,8 +143,15 @@ void Maze::dfs_ss() {
   }
 }
 
-bool Maze::is_visited(std::pair<int, int> cell_id) {
-  return (get_cell_state(cell_id) == CellState::VISITED);
+bool Maze::is_valid(std::pair<int, int> cell_id) {
+  // this cell is out of range
+  int r = cell_id.first;
+  int c = cell_id.second;
+  if (r < 0 || r >= m_number_of_rows || c < 0 || c >= m_number_of_cols)
+    return false;
+  // this cell is a wall
+  if (m_maze[r][c].get_state() == CellState::WALL) return false;
+  return true;
 }
 
 bool Maze::is_not_visited(std::pair<int, int> cell_id) {
