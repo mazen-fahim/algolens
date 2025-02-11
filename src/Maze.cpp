@@ -5,18 +5,21 @@
 #include <iterator>
 #include <vector>
 
+#include "App.hpp"
 #include "Cell.hpp"
 #include "GameObject.hpp"
-#include "defs.hpp"
 
 Maze::Maze(int number_of_rows, int number_of_cols)
     : GameObject(0, 0, 0, 0, 0, 0, 0, 255, false),
       m_number_of_rows{number_of_rows},
       m_number_of_cols{number_of_cols} {
-  int maze_width = CELL_SIZE * m_number_of_cols;
-  int maze_height = CELL_SIZE * m_number_of_rows;
-  int maze_x = (WINDOW_WIDTH - maze_width) / 2;
-  int maze_y = (WINDOW_HEIGHT - maze_height);
+  m_cell_width = (App::window_width * 3 / 4) / number_of_cols;
+  m_cell_height = (App::window_height * 3 / 4) / number_of_rows;
+
+  int maze_width = m_cell_width * m_number_of_cols;
+  int maze_height = m_cell_height * m_number_of_rows;
+  int maze_x = (App::window_width - maze_width) / 2;
+  int maze_y = (App::window_height - maze_height);
   set_width(maze_width);
   set_height(maze_height);
   set_x(maze_x);
@@ -27,9 +30,9 @@ Maze::Maze(int number_of_rows, int number_of_cols)
     std::vector<Cell> cells;
     std::vector<std::pair<int, int>> parents;
     for (int j = 0; j < m_number_of_cols; j++) {
-      int x = maze_x + j * CELL_SIZE;
-      int y = maze_y + i * CELL_SIZE;
-      Cell cell(x, y, CELL_SIZE, CELL_SIZE, 0, 0, 0, 255, false,
+      int x = maze_x + j * m_cell_width;
+      int y = maze_y + i * m_cell_height;
+      Cell cell(x, y, m_cell_width, m_cell_height, 0, 0, 0, 255, false,
                 CellState::NOT_VISITED);
       cells.push_back(cell);
       parents.push_back({-1, -1});
@@ -83,6 +86,11 @@ void Maze::draw() {
   }
 }
 
+// TODO: make the render method apart of the GameObject so
+// that any sort of game object has the ability to render itself
+// TODO: Abstract away the renderer used to be able to switch
+// between graphics api backends easily. (Seperating the backend
+// from my application logic)
 void Maze::render(SDL_Renderer *renderer) {
   // render the maze
   SDL_SetRenderDrawColor(renderer, get_red(), get_green(), get_blue(),
@@ -178,8 +186,8 @@ std::pair<int, int> Maze::get_cell_id(int x, int y) {
   if (!is_inside(x, y))
     return {-1, -1};
   else {
-    int cell_r = (y - get_y()) / CELL_SIZE;
-    int cell_c = (x - get_x()) / CELL_SIZE;
+    int cell_r = (y - get_y()) / m_cell_height;
+    int cell_c = (x - get_x()) / m_cell_width;
     return {cell_r, cell_c};
   }
 }
@@ -206,3 +214,12 @@ void Maze::construct_shortest_path() {
   }
   m_path_length = m_path.size();
 }
+
+int Maze::get_number_of_rows() { return m_number_of_rows; }
+int Maze::get_number_of_cols() { return m_number_of_cols; }
+
+int Maze::get_cell_width() { return m_cell_width; }
+int Maze::get_cell_height() { return m_cell_height; }
+
+void Maze::set_cell_width(int width) { m_cell_width = width; }
+void Maze::set_cell_height(int height) { m_cell_height = height; }

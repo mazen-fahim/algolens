@@ -4,15 +4,14 @@
 #include <SDL_render.h>
 #include <SDL_stdinc.h>
 #include <SDL_video.h>
+#include <imgui.h>
 
 #include <iostream>
 
+#include "App.hpp"
 #include "EventHandler.hpp"
 #include "Maze.hpp"
-#include "defs.hpp"
 using namespace std;
-
-SDL_Rect mtrx[NUMBER_OF_CELLS_R][NUMBER_OF_CELLS_C];
 
 SDL_Window *window = nullptr;
 SDL_Renderer *renderer = nullptr;
@@ -40,21 +39,24 @@ int main(int argc, char *argv[]) {
   SDL_SetHint(SDL_HINT_IME_SHOW_UI, "1");
 #endif
 
-  // Create window
-  window = SDL_CreateWindow(WINDOW_TITLE, SDL_WINDOWPOS_UNDEFINED,
-                            SDL_WINDOWPOS_UNDEFINED, WINDOW_WIDTH,
-                            WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
-  if (!window) {
-    cout << "Error creating window: " << SDL_GetError() << endl;
-    exit(1);
+  // Create window with SDL_Renderer graphics context
+  window = SDL_CreateWindow(App::window_title, SDL_WINDOWPOS_CENTERED,
+                            SDL_WINDOWPOS_CENTERED, App::window_width,
+                            App::window_height, App::window_flags);
+  if (window == nullptr) {
+    printf("Error: SDL_CreateWindow(): %s\n", SDL_GetError());
+    return -1;
   }
 
-  // Create renderer
-  renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-  if (!renderer) {
-    cout << "Error creating renderer: " << SDL_GetError() << endl;
-    exit(1);
+  renderer = SDL_CreateRenderer(window, -1, App::renderer_flags);
+  if (renderer == nullptr) {
+    SDL_Log("Error creating SDL_Renderer!");
+    return -1;
   }
+
+  // SDL_RendererInfo info;
+  // SDL_GetRendererInfo(renderer, &info);
+  // SDL_Log("Current SDL_Renderer: %s", info.name);
 
   /***** Create the maze *****/
   Maze maze = Maze(25, 40);
@@ -85,6 +87,13 @@ int main(int argc, char *argv[]) {
           break;
         case SDL_MOUSEBUTTONUP:
           event_handler.handle_mouse_up(maze);
+          break;
+        case SDL_WINDOWEVENT:
+          if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
+            SDL_GetRendererOutputSize(renderer, &App::window_width,
+                                      &App::window_height);
+            event_handler.handle_window_resize(maze);
+          }
           break;
       }
     }

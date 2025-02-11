@@ -10,8 +10,10 @@ class EventHandler {
 
   void handle_mouse_down(Maze &maze);
   void handle_mouse_up(Maze &maze);
-
   void handle_mouse_motition(Maze &maze);
+
+  void handle_window_resize(Maze &maze);
+
   void set_event(SDL_Event event);
 
  private:

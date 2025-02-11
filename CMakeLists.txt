@@ -29,6 +29,7 @@ add_executable(algolens
   src/Maze.cpp
   src/Cell.cpp
   src/EventHandler.cpp
+  src/App.cpp
   external/imgui/imgui.cpp
   external/imgui/imgui_draw.cpp
   external/imgui/imgui_tables.cpp
