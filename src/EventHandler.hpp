@@ -1,18 +1,21 @@
-
+#pragma once
 #include <SDL.h>
 #include <SDL_events.h>
 
-#include "Maze.hpp"
 class EventHandler {
  public:
   EventHandler();
   ~EventHandler() = default;
 
-  void handle_mouse_down(Maze &maze);
-  void handle_mouse_up(Maze &maze);
-  void handle_mouse_motition(Maze &maze);
+  void handle_mouse_down();
+  void handle_mouse_up();
+  void handle_mouse_motition();
 
-  void handle_window_resize(Maze &maze);
+  void handle_window_resize();
+  void handle_start_button_click();
+  void handle_pause_button_click();
+  void handle_resume_button_click();
+  void handle_reset_button_click();
 
   void set_event(SDL_Event event);
 

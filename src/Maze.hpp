@@ -12,12 +12,25 @@
 #include "Cell.hpp"
 #include "GameObject.hpp"
 
+enum class MazeState {
+  RESET,
+  ANIMATE_ALGORITHM,
+  PAUSE_ALGORITHM,
+  PAUSE_PATH,
+  ANIMATE_PATH,
+  FINISHED,
+};
+
 class Maze : public GameObject {
  public:
   Maze(int number_of_rows, int number_of_cols);
   ~Maze() = default;
   void draw();
   void render(SDL_Renderer *renderer);
+  void start();
+  void pause();
+  void resume();
+  void reset();
 
   // TODO: Error checking
   // reutrns wheter or not the point(x, y) is inside of the maze borders
@@ -33,6 +46,7 @@ class Maze : public GameObject {
   int get_number_of_cols();
   int get_cell_width();
   int get_cell_height();
+  MazeState get_maze_state();
 
   // updates both the source/target cell id
   // and updates the states accordingly
@@ -52,16 +66,15 @@ class Maze : public GameObject {
   int m_number_of_cols;
   int m_cell_width;
   int m_cell_height;
-  int m_number_of_cells;
+
   std::vector<std::vector<std::pair<int, int>>> m_parent;
   std::vector<std::pair<int, int>> m_path;
   std::pair<int, int> m_source;
   std::pair<int, int> m_target;
   std::string m_algorithm;
-  bool m_target_found;
   int m_path_length;
-  bool m_path_animation_finished;
   int m_path_index;
+  MazeState m_state;
 
   std::stack<std::pair<int, int>> m_dfs_stk;
   std::queue<std::pair<int, int>> m_bfs_q;
