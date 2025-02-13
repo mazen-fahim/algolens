@@ -9,7 +9,6 @@
 
 #include "App.hpp"
 #include "EventHandler.hpp"
-#include "Maze.hpp"
 #include "UI.hpp"
 #include "imgui.h"
 #include "imgui_impl_sdl2.h"
@@ -29,10 +28,10 @@ void kill() {
 int main(int argc, char *argv[]) {
   /***** Initialize my App *****/
   App &app = App::get_instance();
-  app.set_window_size(1080, 720);
-  app.create_maze(25, 40);
+  app.set_window_size(1280, 720);
+  app.create_maze();
   Maze &maze = app.get_maze();
-  maze.set_algorithm("dfs");
+  app.set_algorithm("dfs");
 
   /***** Initialization (window and renderer) ******/
   srand((unsigned int)time(NULL));
@@ -104,22 +103,23 @@ int main(int argc, char *argv[]) {
           quit = true;
           break;
         case SDL_MOUSEMOTION:
-          event_handler.handle_mouse_motition();
+          if (!io.WantCaptureMouse) event_handler.handle_mouse_motition();
           break;
         case SDL_MOUSEBUTTONDOWN:
-          event_handler.handle_mouse_down();
+          if (!io.WantCaptureMouse) event_handler.handle_mouse_down();
           break;
         case SDL_MOUSEBUTTONUP:
-          event_handler.handle_mouse_up();
+          if (!io.WantCaptureMouse) event_handler.handle_mouse_up();
           break;
         case SDL_WINDOWEVENT:
-          if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
+          if (event.window.event == SDL_WINDOWEVENT_RESIZED ||
+              event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
             int w, h;
             SDL_GetRendererOutputSize(renderer, &w, &h);
             app.set_window_size(w, h);
             event_handler.handle_window_resize();
+            SDL_RenderSetViewport(renderer, NULL);
           }
-          break;
       }
     }
     if (SDL_GetWindowFlags(window) & SDL_WINDOW_MINIMIZED) {
@@ -134,7 +134,6 @@ int main(int argc, char *argv[]) {
 
     /***** Update the UI *****/
     UI::draw(event_handler);
-
     /***** Update states *****/
     maze.draw();
 

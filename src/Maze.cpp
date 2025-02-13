@@ -5,34 +5,36 @@
 #include "App.hpp"
 #include "Cell.hpp"
 #include "GameObject.hpp"
+#include "defs.hpp"
 
-Maze::Maze(int number_of_rows, int number_of_cols)
-    : GameObject(0, 0, 0, 0, 0, 0, 0, 255, false),
-      m_number_of_rows{number_of_rows},
-      m_number_of_cols{number_of_cols} {
+Maze::Maze()
+    : GameObject(0, 0, ALGO_WINDOW_WIDTH, ALGO_WINDOW_HEIGHT, 0, 0, 0, 255,
+                 false)
+
+{
   App &app = App::get_instance();
   Maze &maze = app.get_maze();
+
   int window_width = app.get_window_width();
   int window_height = app.get_window_height();
-  m_cell_width = (window_width * 3 / 4) / number_of_cols;
-  m_cell_height = (window_height * 3 / 4) / number_of_rows;
+  int maze_x = (window_width - ALGO_WINDOW_WIDTH) / 2;
+  int maze_y = (window_height - ALGO_WINDOW_HEIGHT) / 2;
+  if (maze_x >= 0)
+    set_x(maze_x);
+  else
+    set_x(0);
+  if (maze_y >= 0)
+    set_y(maze_y);
+  else
+    set_y(0);
 
-  int maze_width = m_cell_width * m_number_of_cols;
-  int maze_height = m_cell_height * m_number_of_rows;
-  int maze_x = (window_width - maze_width) / 2;
-  int maze_y = (window_height - maze_height);
-  set_width(maze_width);
-  set_height(maze_height);
-  set_x(maze_x);
-  set_y(maze_y);
-
-  for (int i = 0; i < m_number_of_rows; i++) {
+  for (int i = 0; i < NUMBER_OF_ROWS; i++) {
     std::vector<Cell> cells;
     std::vector<std::pair<int, int>> parents;
-    for (int j = 0; j < m_number_of_cols; j++) {
-      int x = maze_x + j * m_cell_width;
-      int y = maze_y + i * m_cell_height;
-      Cell cell(x, y, m_cell_width, m_cell_height, 0, 0, 0, 255, false,
+    for (int j = 0; j < NUMBER_OF_COLS; j++) {
+      int x = maze_x + j * CELL_WIDTH;
+      int y = maze_y + i * CELL_HEIGHT;
+      Cell cell(x, y, CELL_WIDTH, CELL_HEIGHT, 0, 0, 0, 255, false,
                 CellState::NOT_VISITED);
       cells.push_back(cell);
       parents.push_back({-1, -1});
@@ -44,20 +46,21 @@ Maze::Maze(int number_of_rows, int number_of_cols)
   // Set default position for source/target cells.
   std::pair<int, int> m_source = {0, 0};
   std::pair<int, int> m_target = {0, 0};
-  m_source.first = m_number_of_rows / 4;
-  m_source.second = m_number_of_cols / 4;
-  m_target.first = m_number_of_rows * 3 / 4;
-  m_target.second = m_number_of_cols * 3 / 4;
+  m_source.first = NUMBER_OF_ROWS / 4;
+  m_source.second = NUMBER_OF_COLS / 4;
+  m_target.first = NUMBER_OF_ROWS * 3 / 4;
+  m_target.second = NUMBER_OF_COLS * 3 / 4;
   set_source_cell(m_source);
   set_target_cell(m_target);
 
   m_path_length = 0;
   m_path_index = 0;
-  m_state = MazeState::RESET;
 }
 
 void Maze::draw() {
-  if (m_state == MazeState::ANIMATE_ALGORITHM) {
+  App &app = App::get_instance();
+  AlgoState algo_state = app.get_algo_state();
+  if (algo_state == AlgoState::ALGORITHM_RUN) {
     if (m_algorithm == "dfs") {
       dfs_ss();
     }
@@ -68,9 +71,9 @@ void Maze::draw() {
     // }
   }
 
-  else if (m_state == MazeState::ANIMATE_PATH) {
+  else if (algo_state == AlgoState::PATH_RUN) {
     if (m_path_index == m_path_length) {
-      m_state = MazeState::FINISHED;
+      app.set_algo_state(AlgoState::FINISH);
     } else {
       std::pair<int, int> cell = m_path[m_path_index++];
       if (cell != m_target) set_cell_state(cell, CellState::SHORTEST_PATH);
@@ -87,16 +90,6 @@ void Maze::draw() {
 // between graphics api backends easily. (Seperating the backend
 // from my application logic)
 void Maze::render(SDL_Renderer *renderer) {
-  // render the maze
-  SDL_SetRenderDrawColor(renderer, get_red(), get_green(), get_blue(),
-                         get_alpha());
-  SDL_Rect rect = {get_x(), get_y(), get_width(), get_height()};
-  if (get_fill())
-    SDL_RenderFillRect(renderer, &rect);
-  else
-    SDL_RenderDrawRect(renderer, &rect);
-
-  // render all the cells inside the maze
   for (auto &row : m_maze) {
     for (auto &cell : row) {
       cell.render(renderer);
@@ -105,7 +98,12 @@ void Maze::render(SDL_Renderer *renderer) {
 }
 
 void Maze::dfs_ss() {
-  if (m_dfs_stk.empty()) return;
+  App &app = App::get_instance();
+  AlgoState algo_state = app.get_algo_state();
+  if (m_dfs_stk.empty()) {
+    app.set_algo_state(AlgoState::FINISH_TARGET_NOT_FOUND);
+    return;
+  }
 
   int dr[] = {1, -1, 0, 0};
   int dc[] = {0, 0, 1, -1};
@@ -125,7 +123,7 @@ void Maze::dfs_ss() {
   // found target
   if (get_cell_state(current_cell) == CellState::TARGET) {
     construct_shortest_path();
-    m_state = MazeState::ANIMATE_PATH;
+    app.set_algo_state(AlgoState::PATH_RUN);
     return;
   }
 
@@ -150,7 +148,7 @@ bool Maze::is_valid(std::pair<int, int> cell_id) {
   // this cell is out of range
   int r = cell_id.first;
   int c = cell_id.second;
-  if (r < 0 || r >= m_number_of_rows || c < 0 || c >= m_number_of_cols)
+  if (r < 0 || r >= NUMBER_OF_ROWS || c < 0 || c >= NUMBER_OF_COLS)
     return false;
   // this cell is a wall
   if (m_maze[r][c].get_state() == CellState::WALL) return false;
@@ -181,8 +179,8 @@ std::pair<int, int> Maze::get_cell_id(int x, int y) {
   if (!is_inside(x, y))
     return {-1, -1};
   else {
-    int cell_r = (y - get_y()) / m_cell_height;
-    int cell_c = (x - get_x()) / m_cell_width;
+    int cell_r = (y - get_y()) / CELL_HEIGHT;
+    int cell_c = (x - get_x()) / CELL_WIDTH;
     return {cell_r, cell_c};
   }
 }
@@ -210,47 +208,50 @@ void Maze::construct_shortest_path() {
   m_path_length = m_path.size();
 }
 
-int Maze::get_number_of_rows() { return m_number_of_rows; }
-int Maze::get_number_of_cols() { return m_number_of_cols; }
-
-int Maze::get_cell_width() { return m_cell_width; }
-int Maze::get_cell_height() { return m_cell_height; }
-
-void Maze::set_cell_width(int width) { m_cell_width = width; }
-void Maze::set_cell_height(int height) { m_cell_height = height; }
-
 void Maze::start() {
-  // don't start without reset
-  if (m_state == MazeState::RESET) {
-    if (m_algorithm == "dfs") m_dfs_stk.push(m_source);
-    m_state = MazeState::ANIMATE_ALGORITHM;
+  // only start when in reset state
+  App &app = App::get_instance();
+  AlgoState algo_state = app.get_algo_state();
+  if (algo_state == AlgoState::RESET) {
+    if (m_algorithm == "dfs")
+      m_dfs_stk.push(m_source);
+    else if (m_algorithm == "bfs")
+      m_bfs_q.push(m_source);
+    else if (m_algorithm == "dijkstra")
+      m_dijkstra_q.push(m_source);
+    app.set_algo_state(AlgoState::ALGORITHM_RUN);
   }
 }
 
 void Maze::pause() {
-  if (m_state == MazeState::ANIMATE_ALGORITHM)
-    m_state = MazeState::PAUSE_ALGORITHM;
-  else if (m_state == MazeState::ANIMATE_PATH)
-    m_state = MazeState::PAUSE_PATH;
+  App &app = App::get_instance();
+  AlgoState algo_state = app.get_algo_state();
+  if (algo_state == AlgoState::ALGORITHM_RUN)
+    app.set_algo_state(AlgoState::ALGORITHM_PAUSE);
+  else if (algo_state == AlgoState::PATH_RUN)
+    app.set_algo_state(AlgoState::PATH_PAUSE);
 }
 
 void Maze::resume() {
-  if (m_state == MazeState::PAUSE_ALGORITHM)
-    m_state = MazeState::ANIMATE_ALGORITHM;
-  else if (m_state == MazeState::PAUSE_PATH)
-    m_state = MazeState::ANIMATE_PATH;
+  App &app = App::get_instance();
+  AlgoState algo_state = app.get_algo_state();
+  if (algo_state == AlgoState::ALGORITHM_PAUSE)
+    app.set_algo_state(AlgoState::ALGORITHM_RUN);
+  else if (algo_state == AlgoState::PATH_PAUSE)
+    app.set_algo_state(AlgoState::PATH_RUN);
 }
 
 void Maze::reset() {
-  m_state = MazeState::RESET;
+  App &app = App::get_instance();
+  app.set_algo_state(AlgoState::RESET);
   m_path_length = 0;
   m_path_index = 0;
   while (!m_dfs_stk.empty()) m_dfs_stk.pop();
   while (!m_dijkstra_q.empty()) m_dijkstra_q.pop();
   while (!m_bfs_q.empty()) m_bfs_q.pop();
   m_path.clear();
-  for (int i = 0; i < m_number_of_rows; i++) {
-    for (int j = 0; j < m_number_of_cols; j++) {
+  for (int i = 0; i < NUMBER_OF_ROWS; i++) {
+    for (int j = 0; j < NUMBER_OF_COLS; j++) {
       m_parent[i][j] = std::make_pair(-1, -1);
       m_maze[i][j].set_state(CellState::NOT_VISITED);
     }
@@ -258,12 +259,12 @@ void Maze::reset() {
   // Recalculate default position of source and target
   std::pair<int, int> m_source = {0, 0};
   std::pair<int, int> m_target = {0, 0};
-  m_source.first = m_number_of_rows / 4;
-  m_source.second = m_number_of_cols / 4;
-  m_target.first = m_number_of_rows * 3 / 4;
-  m_target.second = m_number_of_cols * 3 / 4;
+  m_source.first = NUMBER_OF_ROWS / 4;
+  m_source.second = NUMBER_OF_COLS / 4;
+  m_target.first = NUMBER_OF_ROWS * 3 / 4;
+  m_target.second = NUMBER_OF_COLS * 3 / 4;
   set_source_cell(m_source);
   set_target_cell(m_target);
 }
 
-MazeState Maze::get_maze_state() { return m_state; }
+int Maze::get_path_length() { return m_path_length; }

@@ -4,8 +4,38 @@
 #include <SDL_video.h>
 
 #include <memory>
+#include <string>
+#include <vector>
 
 #include "Maze.hpp"
+
+enum class AlgoState {
+  RESET,
+  ALGORITHM_RUN,
+  ALGORITHM_PAUSE,
+  PATH_PAUSE,
+  PATH_RUN,
+  FINISH,
+  FINISH_TARGET_NOT_FOUND,
+};
+
+enum class CursorState {
+  ARROW,
+  TEXT_INPUT,
+  RESIZE_ALL,
+  RESIZE_NS,
+  RESIZE_EW,
+  RESIZE_NESW,
+  RESIZE_NWSE,
+  HAND,
+  NOT_ALLOWED,
+
+};
+
+enum class AlgoType {
+  SORTING,
+  PATH_FINDING,
+};
 
 // A singelton
 class App {
@@ -13,18 +43,38 @@ class App {
   // this way you have a controlled access to the global App state
   // Singelton pattern
   static App& get_instance();
-  // controlled access to the global maze inside of the global
-  // singelton object
+
   Maze& get_maze();
-  void create_maze(int number_of_rows, int number_of_cols);
+  void create_maze();
+
+  void set_window_size(int width, int height);
   int get_window_width() const;
   int get_window_height() const;
 
-  void set_window_size(int width, int height);
+  CursorState get_cursor_state();
+  void set_cursor_state(CursorState state);
+
+  void set_animation_speed(int speed);
+  int get_animation_speed();
+  bool is_pathfinding_algorithm(std::string algorithm);
+  bool is_sorting_algorithm(std::string algorithm);
+
+  std::string get_current_algorithm();
+  void set_algorithm(std::string algorithm);
 
   const static SDL_WindowFlags window_flags;
   const static SDL_RendererFlags renderer_flags;
   const static char window_title[];
+
+  AlgoState get_algo_state();
+  void set_algo_state(AlgoState state);
+
+  AlgoType get_algo_type();
+  void set_algo_type(AlgoType type);
+
+  std::vector<std::string> get_supported_algorithms();
+  std::vector<std::string> get_supported_pf_algorithms();
+  std::vector<std::string> get_supported_s_algorithms();
 
  private:
   App();
@@ -32,4 +82,12 @@ class App {
   std::unique_ptr<Maze> m_maze;
   int m_window_width;
   int m_window_height;
+  int m_animation_speed;
+  CursorState m_cursor_state;
+  std::vector<std::string> m_supported_pf_algorithms;
+  std::vector<std::string> m_supported_s_algorithms;
+  std::string m_algorithm;
+
+  AlgoState m_algo_state;
+  AlgoType m_algo_type;
 };
