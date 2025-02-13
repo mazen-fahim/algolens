@@ -1,0 +1,9 @@
+- [ ] implement Bars
+- [ ] implement Sort
+-> sort and maze will share the same FSM states.
+
+- [ ] reset everything when changing algorithms
+- [ ] figure out speed control
+- [ ] implement bfs and dijkstra
+- [ ] implement selection sort
+- [ ] make the curosr blocked when hovering over source/target if pf algo started
