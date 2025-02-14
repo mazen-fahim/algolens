@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "Maze.hpp"
+#include "Sort.hpp"
 
 enum class AlgoState {
   RESET,
@@ -32,11 +33,6 @@ enum class CursorState {
 
 };
 
-enum class AlgoType {
-  SORTING,
-  PATH_FINDING,
-};
-
 // A singelton
 class App {
  public:
@@ -45,7 +41,10 @@ class App {
   static App& get_instance();
 
   Maze& get_maze();
+  Sort& get_sort();
+
   void create_maze();
+  void create_sort();
 
   void set_window_size(int width, int height);
   int get_window_width() const;
@@ -69,17 +68,23 @@ class App {
   AlgoState get_algo_state();
   void set_algo_state(AlgoState state);
 
-  AlgoType get_algo_type();
-  void set_algo_type(AlgoType type);
-
   std::vector<std::string> get_supported_algorithms();
   std::vector<std::string> get_supported_pf_algorithms();
   std::vector<std::string> get_supported_s_algorithms();
 
+  void reset();
+  void resume();
+  void start();
+  void pause();
+  void update();
+  void draw();
+  void render(SDL_Renderer* renderer);
+
  private:
   App();
-  ~App();
+  ~App() = default;
   std::unique_ptr<Maze> m_maze;
+  std::unique_ptr<Sort> m_sort;
   int m_window_width;
   int m_window_height;
   int m_animation_speed;
@@ -89,5 +94,4 @@ class App {
   std::string m_algorithm;
 
   AlgoState m_algo_state;
-  AlgoType m_algo_type;
 };

@@ -3,6 +3,8 @@
 #include <SDL_rect.h>
 #include <SDL_render.h>
 
+#include "defs.hpp"
+
 Bar::Bar(int x, int y, int width, int height, int red, int green, int blue,
          int alpha, bool fill, BarState state)
     : GameObject(x, y, width, height, red, green, blue, alpha, fill),
@@ -10,15 +12,15 @@ Bar::Bar(int x, int y, int width, int height, int red, int green, int blue,
 
 void Bar::draw() {
   if (m_state == BarState::SORTED) {
-    set_red(238);
-    set_green(69);
-    set_blue(64);
-    set_alpha(255);
-    set_fill(true);
-  } else if (m_state == BarState::NOT_SORTED) {
     set_red(171);
     set_green(235);
     set_blue(125);
+    set_alpha(255);
+    set_fill(true);
+  } else if (m_state == BarState::NOT_SORTED) {
+    set_red(238);
+    set_green(69);
+    set_blue(64);
     set_alpha(255);
     set_fill(true);
   } else if (m_state == BarState::BEING_COMPARED) {

@@ -1,5 +1,7 @@
 #include "UI.hpp"
 
+#include <iostream>
+
 #include "App.hpp"
 #include "EventHandler.hpp"
 #include "imgui.h"
@@ -42,6 +44,7 @@ void UI::draw_speed_control(EventHandler &event_handler) {
 void UI::draw_overlay() {
   App &app = App::get_instance();
   Maze &maze = app.get_maze();
+  Sort &sort = app.get_sort();
   static int location = 0;
   ImGuiWindowFlags window_flags =
       ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize |
@@ -63,12 +66,13 @@ void UI::draw_overlay() {
   ImGui::Begin("Example: Simple overlay", NULL, window_flags);
   ImGui::Text("Algorithm: %s\n", app.get_current_algorithm().c_str());
   ImGui::Separator();
-  if (app.get_algo_state() == AlgoState::ALGORITHM_RUN) {
-    ImGui::ProgressBar(-1.0f * (float)ImGui::GetTime(), ImVec2(0.0f, 0.0f),
-                       "Searching..");
-  }
 
   if (app.is_pathfinding_algorithm(app.get_current_algorithm())) {
+    if (app.get_algo_state() == AlgoState::ALGORITHM_RUN) {
+      ImGui::ProgressBar(-1.0f * (float)ImGui::GetTime(), ImVec2(0.0f, 0.0f),
+                         "Searching..");
+    }
+
     if (app.get_algo_state() == AlgoState::PATH_RUN ||
         app.get_algo_state() == AlgoState::FINISH) {
       ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Target found");
@@ -77,6 +81,18 @@ void UI::draw_overlay() {
     } else if (app.get_algo_state() == AlgoState::FINISH_TARGET_NOT_FOUND) {
       ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Target not found");
       ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Path length = -1");
+    }
+  } else {
+    if (app.get_algo_state() == AlgoState::ALGORITHM_RUN) {
+      ImGui::ProgressBar(-1.0f * (float)ImGui::GetTime(), ImVec2(0.0f, 0.0f),
+                         "Sorting..");
+    }
+
+    if (app.get_algo_state() == AlgoState::FINISH) {
+      ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Elements sorted");
+      ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f),
+                         "Number of comparisons = %d",
+                         sort.get_number_of_comparisons());
     }
   }
 
@@ -131,6 +147,7 @@ void UI::draw_combo(EventHandler &event_handler) {
     }
     if (item_selected_idx != item_selected_idx_prv) {
       event_handler.handle_algorithm_change(algorithms[item_selected_idx]);
+      std::cout << "change" << std::endl;
       item_selected_idx_prv = item_selected_idx;
     }
     ImGui::EndCombo();

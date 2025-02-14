@@ -14,8 +14,7 @@ EventHandler::EventHandler() {
 
 void EventHandler::handle_mouse_down() {
   App &app = App::get_instance();
-  AlgoType algo_type = app.get_algo_type();
-  if (algo_type == AlgoType::SORTING) return;
+  if (app.is_sorting_algorithm(app.get_current_algorithm())) return;
 
   Maze &maze = app.get_maze();
   m_mouse_button_down = true;
@@ -35,8 +34,7 @@ void EventHandler::handle_mouse_down() {
 
 void EventHandler::handle_mouse_up() {
   App &app = App::get_instance();
-  AlgoType algo_type = app.get_algo_type();
-  if (algo_type == AlgoType::SORTING) return;
+  if (app.is_sorting_algorithm(app.get_current_algorithm())) return;
 
   m_mouse_button_down = false;
   m_source_pressed_down = false;
@@ -45,8 +43,7 @@ void EventHandler::handle_mouse_up() {
 
 void EventHandler::handle_mouse_motition() {
   App &app = App::get_instance();
-  AlgoType algo_type = app.get_algo_type();
-  if (algo_type == AlgoType::SORTING) return;
+  if (app.is_sorting_algorithm(app.get_current_algorithm())) return;
 
   Maze &maze = app.get_maze();
   int x, y;
@@ -125,83 +122,91 @@ void EventHandler::handle_shortest_path_hover() {
 
 void EventHandler::set_event(SDL_Event event) { m_event = event; }
 
+// TODO: put this in in App?
 void EventHandler::handle_window_resize() {
   App &app = App::get_instance();
-  Maze &maze = app.get_maze();
-
   int window_width = app.get_window_width();
   int window_height = app.get_window_height();
-  int maze_x = (window_width - ALGO_WINDOW_WIDTH) / 2;
-  int maze_y = (window_height - ALGO_WINDOW_HEIGHT) / 2;
-  if (maze_x >= 0)
-    maze.set_x(maze_x);
-  else
-    maze.set_x(0);
-  if (maze_y >= 0)
-    maze.set_y(maze_y);
-  else
-    maze.set_y(0);
+  int algo_x = (window_width - ALGO_WINDOW_WIDTH) / 2;
+  int algo_y = (window_height - ALGO_WINDOW_HEIGHT) / 2;
 
-  for (int i = 0; i < NUMBER_OF_ROWS; i++) {
-    for (int j = 0; j < NUMBER_OF_COLS; j++) {
-      int x = maze_x + j * CELL_WIDTH;
-      int y = maze_y + i * CELL_HEIGHT;
-      maze.m_maze[i][j].set_x(x);
-      maze.m_maze[i][j].set_y(y);
+  std::string current_algorithm = app.get_current_algorithm();
+  if (app.is_pathfinding_algorithm(current_algorithm)) {
+    Maze &maze = app.get_maze();
+
+    if (algo_x >= 0) {
+      maze.set_x(algo_x);
+    } else {
+      maze.set_x(0);
+    }
+
+    if (algo_y >= 0) {
+      maze.set_y(algo_y);
+    } else {
+      maze.set_y(0);
+    }
+
+    for (int i = 0; i < NUMBER_OF_ROWS; i++) {
+      for (int j = 0; j < NUMBER_OF_COLS; j++) {
+        int x = algo_x + j * CELL_WIDTH;
+        int y = algo_y + i * CELL_HEIGHT;
+        maze.m_maze[i][j].set_x(x);
+        maze.m_maze[i][j].set_y(y);
+      }
+    }
+
+  } else {
+    Sort &sort = app.get_sort();
+    if (algo_x >= 0) {
+      sort.set_x(algo_x);
+    } else {
+      sort.set_x(0);
+    }
+
+    if (algo_y >= 0) {
+      sort.set_y(algo_y);
+    } else {
+      sort.set_y(0);
+    }
+
+    for (int i = 0; i < NUMBER_OF_BARS; i++) {
+      int height = sort.m_bars[i].get_height();
+      int x = algo_x + i * BAR_WIDTH;
+      int y = algo_y + ALGO_WINDOW_HEIGHT - height;
+      sort.m_bars[i].set_x(x);
+      sort.m_bars[i].set_y(y);
     }
   }
 }
 
 void EventHandler::handle_start_button_click() {
   App &app = App::get_instance();
-  AlgoType algo_type = app.get_algo_type();
-  if (algo_type == AlgoType::SORTING) return;
-
-  Maze &maze = app.get_maze();
-  maze.start();
-  std::cout << "Start Button clicked" << std::endl;
+  app.start();
+  std::cout << "pause Button clicked" << std::endl;
 }
 
 void EventHandler::handle_pause_button_click() {
   App &app = App::get_instance();
-  AlgoType algo_type = app.get_algo_type();
-  if (algo_type == AlgoType::SORTING) return;
-
-  Maze &maze = app.get_maze();
-  maze.pause();
+  app.pause();
   std::cout << "pause Button clicked" << std::endl;
 }
 
 void EventHandler::handle_reset_button_click() {
   App &app = App::get_instance();
-  AlgoType algo_type = app.get_algo_type();
-  if (algo_type == AlgoType::SORTING) return;
-
-  Maze &maze = app.get_maze();
-  maze.reset();
+  app.reset();
   std::cout << "reset Button clicked" << std::endl;
 }
 
 void EventHandler::handle_resume_button_click() {
   App &app = App::get_instance();
-  AlgoType algo_type = app.get_algo_type();
-  if (algo_type == AlgoType::SORTING) return;
-
-  Maze &maze = app.get_maze();
-  maze.resume();
+  app.resume();
   std::cout << "resume Button clicked" << std::endl;
 }
 
 // TODO:
 void EventHandler::handle_algorithm_change(std::string algorithm) {
   App &app = App::get_instance();
-  std::string current_algorithm = app.get_current_algorithm();
-
-  if (app.is_pathfinding_algorithm(current_algorithm)) {
-    Maze &maze = app.get_maze();
-    maze.reset();
-  } else {
-  }
+  app.reset();
   app.set_algorithm(algorithm);
 }
 

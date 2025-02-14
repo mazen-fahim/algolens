@@ -3,6 +3,7 @@
 #include <SDL_events.h>
 #include <SDL_render.h>
 #include <SDL_stdinc.h>
+#include <SDL_timer.h>
 #include <SDL_video.h>
 
 #include <iostream>
@@ -28,8 +29,8 @@ void kill() {
 int main(int argc, char *argv[]) {
   /***** Initialize my App *****/
   App &app = App::get_instance();
-  app.set_window_size(1280, 720);
   app.create_maze();
+  app.create_sort();
   Maze &maze = app.get_maze();
   app.set_algorithm("dfs");
 
@@ -78,15 +79,11 @@ int main(int argc, char *argv[]) {
       ImGuiConfigFlags_NavEnableGamepad;  // Enable Gamepad Controls
 
   // Setup Dear ImGui style
-  ImGui::StyleColorsDark();
-  // ImGui::StyleColorsLight();
+  ImGui::StyleColorsLight();
 
   // Setup Platform/Renderer backends
   ImGui_ImplSDL2_InitForSDLRenderer(window, renderer);
   ImGui_ImplSDLRenderer2_Init(renderer);
-
-  bool show_demo_window = true;
-  bool show_another_window = false;
 
   /***** Start the game loop *****/
   EventHandler event_handler;
@@ -134,8 +131,9 @@ int main(int argc, char *argv[]) {
 
     /***** Update the UI *****/
     UI::draw(event_handler);
+
     /***** Update states *****/
-    maze.draw();
+    app.draw();
 
     /***** Rendering *****/
     ImGui::Render();
@@ -143,7 +141,9 @@ int main(int argc, char *argv[]) {
                        io.DisplayFramebufferScale.y);
     SDL_SetRenderDrawColor(renderer, 230, 230, 230, 255);
     SDL_RenderClear(renderer);
-    maze.render(renderer);
+
+    app.render(renderer);
+
     ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), renderer);
     SDL_RenderPresent(renderer);
   }

@@ -1,6 +1,10 @@
 #include "App.hpp"
 
+#include <SDL_render.h>
+
 #include <memory>
+
+#include "defs.hpp"
 
 const char App::window_title[] = "algolens";
 const SDL_WindowFlags App::window_flags =
@@ -14,13 +18,13 @@ App& App::get_instance() {
 }
 
 Maze& App::get_maze() { return *m_maze; }
+Sort& App::get_sort() { return *m_sort; }
 
 App::App()
-    : m_window_width{1280},
-      m_window_height{720},
-      m_animation_speed{100},
-      m_algo_state{AlgoState::RESET},
-      m_algo_type{AlgoType::PATH_FINDING} {
+    : m_window_width{DEFAULT_WINDOW_WIDTH},
+      m_window_height{DEFAULT_WINDOW_HEIGHT},
+      m_animation_speed{DEFAULT_ANIMATION_SPEED},
+      m_algo_state{AlgoState::RESET} {
   m_supported_pf_algorithms.push_back("dfs");
   m_supported_pf_algorithms.push_back("bfs");
   m_supported_pf_algorithms.push_back("dijkstra");
@@ -28,38 +32,23 @@ App::App()
 }
 
 void App::create_maze() { m_maze = std::make_unique<Maze>(); }
+void App::create_sort() { m_sort = std::make_unique<Sort>(); }
 
 void App::set_window_size(int width, int height) {
   m_window_height = height;
   m_window_width = width;
 }
-
 int App::get_window_height() const { return m_window_height; }
 int App::get_window_width() const { return m_window_width; }
 
-App::~App() = default;
-
-CursorState App::get_cursor_state() { return m_cursor_state; }
 void App::set_cursor_state(CursorState state) { m_cursor_state = state; }
+CursorState App::get_cursor_state() { return m_cursor_state; }
 
 void App::set_animation_speed(int speed) { m_animation_speed = speed; }
 int App::get_animation_speed() { return m_animation_speed; }
 
+void App::set_algorithm(std::string algorithm) { m_algorithm = algorithm; }
 std::string App::get_current_algorithm() { return m_algorithm; }
-
-void App::set_algorithm(std::string algorithm) {
-  m_algorithm = algorithm;
-  if (is_pathfinding_algorithm(algorithm)) {
-    m_algo_type = AlgoType::PATH_FINDING;
-    m_maze->set_algorithm(algorithm);
-    return;
-  }
-
-  if (is_sorting_algorithm(algorithm)) {
-    m_algo_type = AlgoType::SORTING;
-    return;
-  }
-}
 
 bool App::is_pathfinding_algorithm(std::string algorithm) {
   for (auto& algo : m_supported_pf_algorithms)
@@ -74,10 +63,8 @@ bool App::is_sorting_algorithm(std::string algorithm) {
 }
 
 AlgoState App::get_algo_state() { return m_algo_state; }
-void App::set_algo_state(AlgoState state) { m_algo_state = state; }
 
-AlgoType App::get_algo_type() { return m_algo_type; }
-void App::set_algo_type(AlgoType type) { m_algo_type = type; }
+void App::set_algo_state(AlgoState state) { m_algo_state = state; }
 
 std::vector<std::string> App::get_supported_algorithms() {
   std::vector<std::string> supported_algorithms;
@@ -93,4 +80,67 @@ std::vector<std::string> App::get_supported_pf_algorithms() {
 }
 std::vector<std::string> App::get_supported_s_algorithms() {
   return m_supported_s_algorithms;
+}
+
+void App::start() {
+  if (is_pathfinding_algorithm(m_algorithm)) {
+    if (m_algo_state == AlgoState::RESET) {
+      m_maze->start(m_algorithm);
+      m_algo_state = AlgoState::ALGORITHM_RUN;
+    }
+  } else {
+    if (m_algo_state == AlgoState::RESET) {
+      m_sort->start(m_algorithm);
+      m_algo_state = AlgoState::ALGORITHM_RUN;
+    }
+  }
+}
+
+void App::pause() {
+  if (is_pathfinding_algorithm(m_algorithm)) {
+    if (m_algo_state == AlgoState::ALGORITHM_RUN)
+      m_algo_state = AlgoState::ALGORITHM_PAUSE;
+    else if (m_algo_state == AlgoState::PATH_RUN)
+      m_algo_state = AlgoState::PATH_PAUSE;
+  } else {
+    if (m_algo_state == AlgoState::ALGORITHM_RUN)
+      m_algo_state = AlgoState::ALGORITHM_PAUSE;
+  }
+}
+
+void App::resume() {
+  if (is_pathfinding_algorithm(m_algorithm)) {
+    if (m_algo_state == AlgoState::ALGORITHM_PAUSE)
+      m_algo_state = AlgoState::ALGORITHM_RUN;
+    else if (m_algo_state == AlgoState::PATH_PAUSE)
+      m_algo_state = AlgoState::PATH_RUN;
+  } else {
+    if (m_algo_state == AlgoState::ALGORITHM_PAUSE)
+      m_algo_state = AlgoState::ALGORITHM_RUN;
+  }
+}
+
+void App::reset() {
+  if (is_pathfinding_algorithm(m_algorithm)) {
+    m_maze->reset();
+  } else {
+    m_sort->reset();
+  }
+  m_algo_state = AlgoState::RESET;
+}
+
+void App::draw() {
+  if (is_pathfinding_algorithm(m_algorithm)) {
+    m_maze->draw();
+  } else {
+    m_sort->draw();
+  }
+}
+
+void App::render(SDL_Renderer* renderer) {
+  if (is_pathfinding_algorithm(m_algorithm)) {
+    m_maze->render(renderer);
+  } else {
+    m_sort->render(renderer);
+  }
 }

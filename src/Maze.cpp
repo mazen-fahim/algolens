@@ -13,7 +13,6 @@ Maze::Maze()
 
 {
   App &app = App::get_instance();
-  Maze &maze = app.get_maze();
 
   int window_width = app.get_window_width();
   int window_height = app.get_window_height();
@@ -60,8 +59,9 @@ Maze::Maze()
 void Maze::draw() {
   App &app = App::get_instance();
   AlgoState algo_state = app.get_algo_state();
+  std::string current_algorithm = app.get_current_algorithm();
   if (algo_state == AlgoState::ALGORITHM_RUN) {
-    if (m_algorithm == "dfs") {
+    if (current_algorithm == "dfs") {
       dfs_ss();
     }
     // else if (m_algorithm == "bfs") {
@@ -160,8 +160,6 @@ bool Maze::is_not_visited(std::pair<int, int> cell_id) {
           get_cell_state(cell_id) == CellState::TARGET);
 }
 
-void Maze::set_algorithm(const std::string &algo) { m_algorithm = algo; }
-
 void Maze::set_cell_state(std::pair<int, int> cell_id, CellState state) {
   m_maze[cell_id.first][cell_id.second].set_state(state);
 }
@@ -208,42 +206,16 @@ void Maze::construct_shortest_path() {
   m_path_length = m_path.size();
 }
 
-void Maze::start() {
-  // only start when in reset state
-  App &app = App::get_instance();
-  AlgoState algo_state = app.get_algo_state();
-  if (algo_state == AlgoState::RESET) {
-    if (m_algorithm == "dfs")
-      m_dfs_stk.push(m_source);
-    else if (m_algorithm == "bfs")
-      m_bfs_q.push(m_source);
-    else if (m_algorithm == "dijkstra")
-      m_dijkstra_q.push(m_source);
-    app.set_algo_state(AlgoState::ALGORITHM_RUN);
-  }
-}
-
-void Maze::pause() {
-  App &app = App::get_instance();
-  AlgoState algo_state = app.get_algo_state();
-  if (algo_state == AlgoState::ALGORITHM_RUN)
-    app.set_algo_state(AlgoState::ALGORITHM_PAUSE);
-  else if (algo_state == AlgoState::PATH_RUN)
-    app.set_algo_state(AlgoState::PATH_PAUSE);
-}
-
-void Maze::resume() {
-  App &app = App::get_instance();
-  AlgoState algo_state = app.get_algo_state();
-  if (algo_state == AlgoState::ALGORITHM_PAUSE)
-    app.set_algo_state(AlgoState::ALGORITHM_RUN);
-  else if (algo_state == AlgoState::PATH_PAUSE)
-    app.set_algo_state(AlgoState::PATH_RUN);
+void Maze::start(std::string algorithm) {
+  if (algorithm == "dfs")
+    m_dfs_stk.push(m_source);
+  else if (algorithm == "bfs")
+    m_bfs_q.push(m_source);
+  else if (algorithm == "dijkstra")
+    m_dijkstra_q.push(m_source);
 }
 
 void Maze::reset() {
-  App &app = App::get_instance();
-  app.set_algo_state(AlgoState::RESET);
   m_path_length = 0;
   m_path_index = 0;
   while (!m_dfs_stk.empty()) m_dfs_stk.pop();

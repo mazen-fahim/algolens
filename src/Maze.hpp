@@ -18,7 +18,7 @@ class Maze : public GameObject {
   ~Maze() = default;
   void draw();
   void render(SDL_Renderer *renderer);
-  void start();
+  void start(std::string algorithm);
   void pause();
   void resume();
   void reset();
@@ -39,7 +39,6 @@ class Maze : public GameObject {
   // and updates the states accordingly
   void set_source_cell(std::pair<int, int> source_cell);
   void set_target_cell(std::pair<int, int> source_cell);
-  void set_algorithm(const std::string &algo);
   void set_cell_state(std::pair<int, int> cell_id, CellState state);
 
   // Make it public because the resizing event wants
@@ -51,7 +50,6 @@ class Maze : public GameObject {
   std::vector<std::pair<int, int>> m_path;
   std::pair<int, int> m_source;
   std::pair<int, int> m_target;
-  std::string m_algorithm;
   int m_path_length;
   int m_path_index;
 

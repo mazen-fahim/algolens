@@ -31,6 +31,8 @@ add_executable(algolens
   src/EventHandler.cpp
   src/App.cpp
   src/UI.cpp
+  src/Bar.cpp
+  src/Sort.cpp
   external/imgui/imgui.cpp
   external/imgui/imgui_demo.cpp
   external/imgui/imgui_draw.cpp
