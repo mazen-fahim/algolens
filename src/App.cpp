@@ -2,6 +2,7 @@
 
 #include <memory>
 
+#include "SDL3/SDL_stdinc.h"
 #include "SDL3/SDL_video.h"
 #include "defs.hpp"
 
@@ -22,7 +23,10 @@ App::App()
     : m_window_width{DEFAULT_WINDOW_WIDTH},
       m_window_height{DEFAULT_WINDOW_HEIGHT},
       m_animation_speed{DEFAULT_ANIMATION_SPEED},
-      m_algo_state{AlgoState::RESET} {
+      m_algo_state{AlgoState::RESET},
+      m_previous_tick_frame{0},
+      m_previous_tick_update{0},
+      m_time_since_last_update{0} {
   m_supported_pf_algorithms.push_back("dfs");
   m_supported_pf_algorithms.push_back("bfs");
   m_supported_pf_algorithms.push_back("dijkstra");
@@ -141,4 +145,33 @@ void App::render(SDL_Renderer* renderer) {
   } else {
     m_sort->render(renderer);
   }
+}
+
+Uint32 App::get_delay_time() {
+  Uint64 ct = SDL_GetPerformanceCounter();
+  Uint64 elapsed =
+      (ct - m_previous_tick_frame) * 1000 / SDL_GetPerformanceFrequency();
+  m_previous_tick_frame = ct;
+
+  float target_time_per_frame = 1000.0f / FPS;
+  if (elapsed < target_time_per_frame)
+    return static_cast<Uint32>(target_time_per_frame - elapsed);
+  else
+    return 0;
+}
+
+bool App::should_update() {
+  Uint64 ct = SDL_GetPerformanceCounter();
+  Uint64 elapsed =
+      (ct - m_previous_tick_update) * 1000 / SDL_GetPerformanceFrequency();
+  m_previous_tick_update = ct;
+  m_time_since_last_update += elapsed;
+  float target_time_per_update =
+      1000.0f / (static_cast<float>(m_animation_speed) / 100.0f * UPS);
+
+  if (m_time_since_last_update >= target_time_per_update) {
+    m_time_since_last_update = 0;
+    return true;
+  } else
+    return false;
 }

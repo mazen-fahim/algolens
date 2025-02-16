@@ -1,6 +1,7 @@
 #include "Sort.hpp"
 
 #include "App.hpp"
+#include "Bar.hpp"
 #include "defs.hpp"
 
 Sort::Sort()
@@ -41,9 +42,11 @@ void Sort::draw() {
   App &app = App::get_instance();
   AlgoState algo_state = app.get_algo_state();
   std::string current_algorithm = app.get_current_algorithm();
-  if (algo_state == AlgoState::ALGORITHM_RUN) {
-    if (current_algorithm == "selection_sort") {
-      selection_sort_ss();
+  if (app.should_update()) {
+    if (algo_state == AlgoState::ALGORITHM_RUN) {
+      if (current_algorithm == "selection_sort") {
+        selection_sort_ss();
+      }
     }
   }
 
@@ -55,10 +58,14 @@ void Sort::draw() {
 void Sort::selection_sort_ss() {
   App &app = App::get_instance();
   // Unmark previously compared elements before the next iteration
+  // Note: unmark only if it wasn't marked as
+  // sorted in the last iteration
   if (m_j > 0) {
-    m_bars[m_j_prv].set_state(BarState::NOT_SORTED);
+    if (m_bars[m_j_prv].get_state() != BarState::SORTED)
+      m_bars[m_j_prv].set_state(BarState::NOT_SORTED);
   }
-  m_bars[m_min_idx_prv].set_state(BarState::NOT_SORTED);
+  if (m_bars[m_min_idx_prv].get_state() != BarState::SORTED)
+    m_bars[m_min_idx_prv].set_state(BarState::NOT_SORTED);
 
   if (m_j < NUMBER_OF_BARS) {
     m_bars[m_j].set_state(BarState::BEING_COMPARED);
@@ -91,6 +98,8 @@ void Sort::selection_sort_ss() {
       m_j = m_i + 1;
 
     } else {
+      // set the last bar as sorted before finishing
+      m_bars[m_i].set_state(BarState::SORTED);
       app.set_algo_state(AlgoState::FINISH);
     }
   }

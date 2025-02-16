@@ -5,6 +5,7 @@
 
 #include "Maze.hpp"
 #include "SDL3/SDL.h"
+#include "SDL3/SDL_stdinc.h"
 #include "Sort.hpp"
 
 enum class AlgoState {
@@ -76,6 +77,9 @@ class App {
   void draw();
   void render(SDL_Renderer* renderer);
 
+  Uint32 get_delay_time();
+  bool should_update();
+
  private:
   App();
   ~App() = default;
@@ -88,6 +92,10 @@ class App {
   std::vector<std::string> m_supported_pf_algorithms;
   std::vector<std::string> m_supported_s_algorithms;
   std::string m_algorithm;
+
+  Uint64 m_time_since_last_update;
+  Uint64 m_previous_tick_frame;
+  Uint64 m_previous_tick_update;
 
   AlgoState m_algo_state;
 };

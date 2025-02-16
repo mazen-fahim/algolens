@@ -17,3 +17,10 @@
 #define BAR_WIDTH 20
 #define NUMBER_OF_BARS (ALGO_WINDOW_WIDTH / BAR_WIDTH)
 #define VALUE_RANGE ALGO_WINDOW_HEIGHT
+
+// Frame rate of the application
+#define FPS 144
+
+// speed of the algorithm stepping
+// how many updates per seond
+#define UPS FPS

@@ -9,6 +9,7 @@
 
 #include "Cell.hpp"
 #include "GameObject.hpp"
+#include "SDL3/SDL_stdinc.h"
 
 class Maze : public GameObject {
  public:
@@ -42,6 +43,7 @@ class Maze : public GameObject {
   // Make it public because the resizing event wants
   // to access the individual cells to update them
   std::vector<std::vector<Cell>> m_maze;
+  bool should_draw(Uint64 elapsed, int animation_speed);
 
  private:
   std::vector<std::vector<std::pair<int, int>>> m_parent;

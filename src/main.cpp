@@ -9,6 +9,7 @@
 #include "EventHandler.hpp"
 #include "SDL3/SDL_timer.h"
 #include "UI.hpp"
+#include "defs.hpp"
 using namespace std;
 
 SDL_Window *window = nullptr;
@@ -68,6 +69,8 @@ int main(int argc, char *argv[]) {
   SDL_Event event;
   bool quit = false;
 
+  Uint64 pt = SDL_GetTicks();
+
   while (!quit) {
     /***** Event handling *****/
     while (SDL_PollEvent(&event)) {
@@ -110,6 +113,7 @@ int main(int argc, char *argv[]) {
     UI::draw(event_handler);
 
     /***** Update states *****/
+
     app.draw();
 
     /***** Rendering *****/
@@ -123,7 +127,8 @@ int main(int argc, char *argv[]) {
 
     ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer);
     SDL_RenderPresent(renderer);
-    SDL_Delay(10);
+
+    SDL_Delay(app.get_delay_time());
   }
 
   /***** Free memory *****/

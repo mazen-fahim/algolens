@@ -36,7 +36,7 @@ void UI::draw_speed_control(EventHandler &event_handler) {
 
   ImGui::Begin("Speed Control", NULL, window_flags);
   static int speed = 100;
-  ImGui::DragInt("Speed", &speed, 0.5, 0, 100, "%d%%",
+  ImGui::DragInt("Speed", &speed, 0.5, 1, 100, "%d%%",
                  ImGuiSliderFlags_AlwaysClamp);
   event_handler.handle_speed_change(speed);
   ImGui::End();

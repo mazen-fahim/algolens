@@ -56,23 +56,25 @@ void Maze::draw() {
   App &app = App::get_instance();
   AlgoState algo_state = app.get_algo_state();
   std::string current_algorithm = app.get_current_algorithm();
-  if (algo_state == AlgoState::ALGORITHM_RUN) {
-    if (current_algorithm == "dfs") {
-      dfs_ss();
-    } else if (current_algorithm == "bfs") {
-      bfs_ss();
+  if (app.should_update()) {
+    if (algo_state == AlgoState::ALGORITHM_RUN) {
+      if (current_algorithm == "dfs") {
+        dfs_ss();
+      } else if (current_algorithm == "bfs") {
+        bfs_ss();
+      }
+      // else if (m_algorithm == "dijkstra") {
+      //    dijkstra_ss();
+      //  }
     }
-    // else if (m_algorithm == "dijkstra") {
-    //    dijkstra_ss();
-    //  }
-  }
 
-  else if (algo_state == AlgoState::PATH_RUN) {
-    if (m_path_index == m_path_length) {
-      app.set_algo_state(AlgoState::FINISH);
-    } else {
-      std::pair<int, int> cell = m_path[m_path_index++];
-      if (cell != m_target) set_cell_state(cell, CellState::SHORTEST_PATH);
+    else if (algo_state == AlgoState::PATH_RUN) {
+      if (m_path_index == m_path_length) {
+        app.set_algo_state(AlgoState::FINISH);
+      } else {
+        std::pair<int, int> cell = m_path[m_path_index++];
+        if (cell != m_target) set_cell_state(cell, CellState::SHORTEST_PATH);
+      }
     }
   }
 

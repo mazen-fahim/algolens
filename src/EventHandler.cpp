@@ -129,51 +129,48 @@ void EventHandler::handle_window_resize() {
   float algo_y = (window_height - ALGO_WINDOW_HEIGHT) / 2;
 
   std::string current_algorithm = app.get_current_algorithm();
-  if (app.is_pathfinding_algorithm(current_algorithm)) {
-    Maze &maze = app.get_maze();
+  Maze &maze = app.get_maze();
 
-    if (algo_x >= 0) {
-      maze.set_x(algo_x);
-    } else {
-      maze.set_x(0);
-    }
-
-    if (algo_y >= 0) {
-      maze.set_y(algo_y);
-    } else {
-      maze.set_y(0);
-    }
-
-    for (int i = 0; i < NUMBER_OF_ROWS; i++) {
-      for (int j = 0; j < NUMBER_OF_COLS; j++) {
-        float x = algo_x + j * CELL_WIDTH;
-        float y = algo_y + i * CELL_HEIGHT;
-        maze.m_maze[i][j].set_x(x);
-        maze.m_maze[i][j].set_y(y);
-      }
-    }
-
+  if (algo_x >= 0) {
+    maze.set_x(algo_x);
   } else {
-    Sort &sort = app.get_sort();
-    if (algo_x >= 0) {
-      sort.set_x(algo_x);
-    } else {
-      sort.set_x(0);
-    }
+    maze.set_x(0);
+  }
 
-    if (algo_y >= 0) {
-      sort.set_y(algo_y);
-    } else {
-      sort.set_y(0);
-    }
+  if (algo_y >= 0) {
+    maze.set_y(algo_y);
+  } else {
+    maze.set_y(0);
+  }
 
-    for (int i = 0; i < NUMBER_OF_BARS; i++) {
-      float height = sort.m_bars[i].get_height();
-      float x = algo_x + i * BAR_WIDTH;
-      float y = algo_y + ALGO_WINDOW_HEIGHT - height;
-      sort.m_bars[i].set_x(x);
-      sort.m_bars[i].set_y(y);
+  for (int i = 0; i < NUMBER_OF_ROWS; i++) {
+    for (int j = 0; j < NUMBER_OF_COLS; j++) {
+      float x = algo_x + j * CELL_WIDTH;
+      float y = algo_y + i * CELL_HEIGHT;
+      maze.m_maze[i][j].set_x(x);
+      maze.m_maze[i][j].set_y(y);
     }
+  }
+
+  Sort &sort = app.get_sort();
+  if (algo_x >= 0) {
+    sort.set_x(algo_x);
+  } else {
+    sort.set_x(0);
+  }
+
+  if (algo_y >= 0) {
+    sort.set_y(algo_y);
+  } else {
+    sort.set_y(0);
+  }
+
+  for (int i = 0; i < NUMBER_OF_BARS; i++) {
+    float height = sort.m_bars[i].get_height();
+    float x = algo_x + i * BAR_WIDTH;
+    float y = algo_y + ALGO_WINDOW_HEIGHT - height;
+    sort.m_bars[i].set_x(x);
+    sort.m_bars[i].set_y(y);
   }
 }
 
