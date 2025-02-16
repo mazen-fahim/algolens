@@ -61,7 +61,7 @@ void UI::draw_overlay() {
   window_pos_pivot.y = 0.0f;
   ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, window_pos_pivot);
   window_flags |= ImGuiWindowFlags_NoMove;
-  ImGui::SetNextWindowBgAlpha(0.35f);
+  ImGui::SetNextWindowBgAlpha(1.00f);
 
   ImGui::Begin("Example: Simple overlay", NULL, window_flags);
   ImGui::Text("Algorithm: %s\n", app.get_current_algorithm().c_str());
@@ -170,7 +170,10 @@ void UI::draw_buttons(EventHandler &event_handler) {
     if (ImGui::Button("Resume")) event_handler.handle_resume_button_click();
   }
 
-  ImGui::SameLine();
+  if (algo_state != AlgoState::FINISH &&
+      algo_state != AlgoState::FINISH_TARGET_NOT_FOUND)
+    ImGui::SameLine();
+
   if (ImGui::Button("Reset")) {
     event_handler.handle_reset_button_click();
   }

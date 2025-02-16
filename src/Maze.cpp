@@ -63,12 +63,12 @@ void Maze::draw() {
   if (algo_state == AlgoState::ALGORITHM_RUN) {
     if (current_algorithm == "dfs") {
       dfs_ss();
+    } else if (current_algorithm == "bfs") {
+      bfs_ss();
     }
-    // else if (m_algorithm == "bfs") {
-    //   bfs_ss();
-    // } else if (m_algorithm == "dijkstra") {
-    //   dijkstra_ss();
-    // }
+    // else if (m_algorithm == "dijkstra") {
+    //    dijkstra_ss();
+    //  }
   }
 
   else if (algo_state == AlgoState::PATH_RUN) {
@@ -140,6 +140,53 @@ void Maze::dfs_ss() {
     if (is_valid({new_r, new_c}) && is_not_visited({new_r, new_c})) {
       m_parent[new_r][new_c] = current_cell;
       m_dfs_stk.push({new_r, new_c});
+    }
+  }
+}
+
+void Maze::bfs_ss() {
+  App &app = App::get_instance();
+  AlgoState algo_state = app.get_algo_state();
+  if (m_bfs_q.empty()) {
+    app.set_algo_state(AlgoState::FINISH_TARGET_NOT_FOUND);
+    return;
+  }
+
+  int dr[] = {1, -1, 0, 0};
+  int dc[] = {0, 0, 1, -1};
+
+  std::pair<int, int> current_cell = m_bfs_q.front();
+  m_bfs_q.pop();
+
+  // You would think a "WALL" would never be pushed on the stack
+  // to begin with, but the animation is interactive and the user can put
+  // walls while the algorithm is running. so make sure that you don't process
+  // "WALL" cells that are added at runtime.
+  if (get_cell_state(current_cell) == CellState::WALL) return;
+
+  // was visited before
+  if (get_cell_state(current_cell) == CellState::VISITED) return;
+
+  // found target
+  if (get_cell_state(current_cell) == CellState::TARGET) {
+    construct_shortest_path();
+    app.set_algo_state(AlgoState::PATH_RUN);
+    return;
+  }
+
+  // if the current cell is the source cell then no need to mark
+  // it as visited. the source cell is already marked with a "SOURCE" state
+  // that signifies that it's visited.
+  if (get_cell_state(current_cell) == CellState::NOT_VISITED) {
+    set_cell_state(current_cell, CellState::VISITED);
+  }
+
+  for (int i = 0; i < 4; i++) {
+    int new_r = dr[i] + current_cell.first;
+    int new_c = dc[i] + current_cell.second;
+    if (is_valid({new_r, new_c}) && is_not_visited({new_r, new_c})) {
+      m_parent[new_r][new_c] = current_cell;
+      m_bfs_q.push({new_r, new_c});
     }
   }
 }
