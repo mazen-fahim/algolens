@@ -1,12 +1,11 @@
 #pragma once
-#include <SDL.h>
-#include <SDL_rect.h>
+#include <SDL3/SDL.h>
 
 class GameObject {
   //  Constructor
  public:
-  GameObject(int x, int y, int width, int height, int red, int green, int blue,
-             int alpha, bool fill);
+  GameObject(float x, float y, float width, float height, int red, int green,
+             int blue, int alpha, bool fill);
 
   // Update the object state
   virtual void draw() = 0;
@@ -18,10 +17,10 @@ class GameObject {
   virtual ~GameObject() = default;
 
   // Getters
-  int get_x();
-  int get_y();
-  int get_width();
-  int get_height();
+  float get_x();
+  float get_y();
+  float get_width();
+  float get_height();
   int get_red();
   int get_green();
   int get_blue();
@@ -29,10 +28,10 @@ class GameObject {
   int get_fill();
 
   // Setters
-  void set_x(int x);
-  void set_y(int y);
-  void set_width(int width);
-  void set_height(int height);
+  void set_x(float x);
+  void set_y(float y);
+  void set_width(float width);
+  void set_height(float height);
   void set_red(int red);
   void set_green(int green);
   void set_blue(int blue);
@@ -40,10 +39,10 @@ class GameObject {
   void set_fill(bool fill);
 
  private:
-  int m_x;
-  int m_y;
-  int m_width;
-  int m_height;
+  float m_x;
+  float m_y;
+  float m_width;
+  float m_height;
   int m_red;
   int m_green;
   int m_blue;

@@ -1,6 +1,6 @@
 #ifndef RENDERER_H
 #define RENDERER_H
-#include <SDL.h>
+#include "SDL3/SDL.h"
 
 class Renderer {
  public:

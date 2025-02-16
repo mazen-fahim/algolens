@@ -1,12 +1,7 @@
 #include "Bar.hpp"
 
-#include <SDL_rect.h>
-#include <SDL_render.h>
-
-#include "defs.hpp"
-
-Bar::Bar(int x, int y, int width, int height, int red, int green, int blue,
-         int alpha, bool fill, BarState state)
+Bar::Bar(float x, float y, float width, float height, int red, int green,
+         int blue, int alpha, bool fill, BarState state)
     : GameObject(x, y, width, height, red, green, blue, alpha, fill),
       m_state{state} {}
 
@@ -35,11 +30,11 @@ void Bar::draw() {
 void Bar::render(SDL_Renderer *renderer) {
   SDL_SetRenderDrawColor(renderer, get_red(), get_green(), get_blue(),
                          get_alpha());
-  SDL_Rect rect = {get_x(), get_y(), get_width(), get_height()};
+  SDL_FRect rect = {get_x(), get_y(), get_width(), get_height()};
   if (get_fill())
     SDL_RenderFillRect(renderer, &rect);
   else
-    SDL_RenderDrawRect(renderer, &rect);
+    SDL_RenderRect(renderer, &rect);
 }
 
 void Bar::set_state(BarState state) { m_state = state; }

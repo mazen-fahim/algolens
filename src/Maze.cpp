@@ -1,10 +1,6 @@
 #include "Maze.hpp"
 
-#include <vector>
-
 #include "App.hpp"
-#include "Cell.hpp"
-#include "GameObject.hpp"
 #include "defs.hpp"
 
 Maze::Maze()
@@ -14,10 +10,10 @@ Maze::Maze()
 {
   App &app = App::get_instance();
 
-  int window_width = app.get_window_width();
-  int window_height = app.get_window_height();
-  int maze_x = (window_width - ALGO_WINDOW_WIDTH) / 2;
-  int maze_y = (window_height - ALGO_WINDOW_HEIGHT) / 2;
+  float window_width = app.get_window_width();
+  float window_height = app.get_window_height();
+  float maze_x = (window_width - ALGO_WINDOW_WIDTH) / 2;
+  float maze_y = (window_height - ALGO_WINDOW_HEIGHT) / 2;
   if (maze_x >= 0)
     set_x(maze_x);
   else
@@ -31,8 +27,8 @@ Maze::Maze()
     std::vector<Cell> cells;
     std::vector<std::pair<int, int>> parents;
     for (int j = 0; j < NUMBER_OF_COLS; j++) {
-      int x = maze_x + j * CELL_WIDTH;
-      int y = maze_y + i * CELL_HEIGHT;
+      float x = maze_x + j * CELL_WIDTH;
+      float y = maze_y + i * CELL_HEIGHT;
       Cell cell(x, y, CELL_WIDTH, CELL_HEIGHT, 0, 0, 0, 255, false,
                 CellState::NOT_VISITED);
       cells.push_back(cell);
@@ -215,12 +211,12 @@ CellState Maze::get_cell_state(std::pair<int, int> cell_id) {
   return m_maze[cell_id.first][cell_id.second].get_state();
 }
 
-bool Maze::is_inside(int x, int y) {
+bool Maze::is_inside(float x, float y) {
   return (x >= get_x() && x < get_x() + get_width() && y >= get_y() &&
           y < get_y() + get_height());
 }
 
-std::pair<int, int> Maze::get_cell_id(int x, int y) {
+std::pair<int, int> Maze::get_cell_id(float x, float y) {
   if (!is_inside(x, y))
     return {-1, -1};
   else {

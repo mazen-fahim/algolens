@@ -1,8 +1,6 @@
 #pragma once
 
-#include <SDL.h>
-#include <SDL_rect.h>
-#include <SDL_render.h>
+#include <SDL3/SDL.h>
 
 #include <string>
 #include <vector>

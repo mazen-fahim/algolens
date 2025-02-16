@@ -1,30 +1,18 @@
-#include <SDL2/SDL.h>
-#include <SDL_error.h>
-#include <SDL_events.h>
-#include <SDL_render.h>
-#include <SDL_stdinc.h>
-#include <SDL_timer.h>
-#include <SDL_video.h>
+#include <SDL3/SDL.h>
+#include <imgui.h>
+#include <imgui_impl_sdl3.h>
+#include <imgui_impl_sdlrenderer3.h>
 
 #include <iostream>
 
 #include "App.hpp"
 #include "EventHandler.hpp"
+#include "SDL3/SDL_timer.h"
 #include "UI.hpp"
-#include "imgui.h"
-#include "imgui_impl_sdl2.h"
-#include "imgui_impl_sdlrenderer2.h"
 using namespace std;
 
 SDL_Window *window = nullptr;
 SDL_Renderer *renderer = nullptr;
-
-void kill() {
-  // Quit
-  SDL_DestroyRenderer(renderer);
-  SDL_DestroyWindow(window);
-  SDL_Quit();
-}
 
 int main(int argc, char *argv[]) {
   /***** Initialize my App *****/
@@ -38,10 +26,9 @@ int main(int argc, char *argv[]) {
   srand((unsigned int)time(NULL));
 
   // Setup SDL
-  if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER) !=
-      0) {
-    std::cout << "Error: " << SDL_GetError() << std::endl;
-    return -1;
+  if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
+    SDL_Log("Couldn't initialize SDL: %s", SDL_GetError());
+    return SDL_APP_FAILURE;
   }
 
   // From 2.0.18: Enable native IME.
@@ -49,24 +36,15 @@ int main(int argc, char *argv[]) {
   SDL_SetHint(SDL_HINT_IME_SHOW_UI, "1");
 #endif
 
-  // Create window with SDL_Renderer graphics context
-  window = SDL_CreateWindow(App::window_title, SDL_WINDOWPOS_CENTERED,
-                            SDL_WINDOWPOS_CENTERED, app.get_window_width(),
-                            app.get_window_height(), App::window_flags);
-  if (window == nullptr) {
-    printf("Error: SDL_CreateWindow(): %s\n", SDL_GetError());
-    return -1;
+  if (!SDL_CreateWindowAndRenderer(App::window_title, app.get_window_width(),
+                                   app.get_window_height(), App::window_flags,
+                                   &window, &renderer)) {
+    SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
+    return SDL_APP_FAILURE;
   }
 
-  renderer = SDL_CreateRenderer(window, -1, App::renderer_flags);
-  if (renderer == nullptr) {
-    SDL_Log("Error creating SDL_Renderer!");
-    return -1;
-  }
-
-  // SDL_RendererInfo info;
-  // SDL_GetRendererInfo(renderer, &info);
-  // SDL_Log("Current SDL_Renderer: %s", info.name);
+  SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+  SDL_ShowWindow(window);
 
   // Setup Dear ImGui context
   IMGUI_CHECKVERSION();
@@ -82,8 +60,8 @@ int main(int argc, char *argv[]) {
   ImGui::StyleColorsLight();
 
   // Setup Platform/Renderer backends
-  ImGui_ImplSDL2_InitForSDLRenderer(window, renderer);
-  ImGui_ImplSDLRenderer2_Init(renderer);
+  ImGui_ImplSDL3_InitForSDLRenderer(window, renderer);
+  ImGui_ImplSDLRenderer3_Init(renderer);
 
   /***** Start the game loop *****/
   EventHandler event_handler;
@@ -93,40 +71,39 @@ int main(int argc, char *argv[]) {
   while (!quit) {
     /***** Event handling *****/
     while (SDL_PollEvent(&event)) {
-      ImGui_ImplSDL2_ProcessEvent(&event);
+      ImGui_ImplSDL3_ProcessEvent(&event);
       event_handler.set_event(event);
       switch (event.type) {
-        case SDL_QUIT:
+        case SDL_EVENT_QUIT:
           quit = true;
           break;
-        case SDL_MOUSEMOTION:
+        case SDL_EVENT_MOUSE_MOTION:
           if (!io.WantCaptureMouse) event_handler.handle_mouse_motition();
           break;
-        case SDL_MOUSEBUTTONDOWN:
+        case SDL_EVENT_MOUSE_BUTTON_DOWN:
           if (!io.WantCaptureMouse) event_handler.handle_mouse_down();
           break;
-        case SDL_MOUSEBUTTONUP:
+        case SDL_EVENT_MOUSE_BUTTON_UP:
           if (!io.WantCaptureMouse) event_handler.handle_mouse_up();
           break;
-        case SDL_WINDOWEVENT:
-          if (event.window.event == SDL_WINDOWEVENT_RESIZED ||
-              event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
-            int w, h;
-            SDL_GetRendererOutputSize(renderer, &w, &h);
-            app.set_window_size(w, h);
-            event_handler.handle_window_resize();
-            SDL_RenderSetViewport(renderer, NULL);
-          }
+        case SDL_EVENT_WINDOW_RESIZED:
+          int w, h;
+          SDL_GetCurrentRenderOutputSize(renderer, &w, &h);
+          app.set_window_size(w, h);
+          event_handler.handle_window_resize();
+          SDL_SetRenderViewport(renderer, NULL);
+          break;
       }
     }
+
     if (SDL_GetWindowFlags(window) & SDL_WINDOW_MINIMIZED) {
       SDL_Delay(10);
       continue;
     }
 
     /***** Start the Dear ImGui frame *****/
-    ImGui_ImplSDLRenderer2_NewFrame();
-    ImGui_ImplSDL2_NewFrame();
+    ImGui_ImplSDLRenderer3_NewFrame();
+    ImGui_ImplSDL3_NewFrame();
     ImGui::NewFrame();
 
     /***** Update the UI *****/
@@ -137,20 +114,21 @@ int main(int argc, char *argv[]) {
 
     /***** Rendering *****/
     ImGui::Render();
-    SDL_RenderSetScale(renderer, io.DisplayFramebufferScale.x,
+    SDL_SetRenderScale(renderer, io.DisplayFramebufferScale.x,
                        io.DisplayFramebufferScale.y);
     SDL_SetRenderDrawColor(renderer, 230, 230, 230, 255);
     SDL_RenderClear(renderer);
 
     app.render(renderer);
 
-    ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), renderer);
+    ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer);
     SDL_RenderPresent(renderer);
+    SDL_Delay(10);
   }
 
   /***** Free memory *****/
-  ImGui_ImplSDLRenderer2_Shutdown();
-  ImGui_ImplSDL2_Shutdown();
+  ImGui_ImplSDLRenderer3_Shutdown();
+  ImGui_ImplSDL3_Shutdown();
   ImGui::DestroyContext();
 
   SDL_DestroyRenderer(renderer);

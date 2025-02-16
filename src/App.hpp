@@ -1,13 +1,10 @@
 #pragma once
-#include <SDL.h>
-#include <SDL_render.h>
-#include <SDL_video.h>
-
 #include <memory>
 #include <string>
 #include <vector>
 
 #include "Maze.hpp"
+#include "SDL3/SDL.h"
 #include "Sort.hpp"
 
 enum class AlgoState {
@@ -62,7 +59,6 @@ class App {
   void set_algorithm(std::string algorithm);
 
   const static SDL_WindowFlags window_flags;
-  const static SDL_RendererFlags renderer_flags;
   const static char window_title[];
 
   AlgoState get_algo_state();

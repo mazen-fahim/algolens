@@ -15,10 +15,10 @@ Sort::Sort()
       m_min_idx_prv{0} {
   App &app = App::get_instance();
 
-  int window_width = app.get_window_width();
-  int window_height = app.get_window_height();
-  int sort_x = (window_width - ALGO_WINDOW_WIDTH) / 2;
-  int sort_y = (window_height - ALGO_WINDOW_HEIGHT) / 2;
+  float window_width = app.get_window_width();
+  float window_height = app.get_window_height();
+  float sort_x = (window_width - ALGO_WINDOW_WIDTH) / 2;
+  float sort_y = (window_height - ALGO_WINDOW_HEIGHT) / 2;
   if (sort_x >= 0)
     set_x(sort_x);
   else
@@ -29,9 +29,9 @@ Sort::Sort()
     set_y(0);
 
   for (int i = 0; i < NUMBER_OF_BARS; i++) {
-    int height = rand() % (VALUE_RANGE + 1);
-    int x = get_x() + i * BAR_WIDTH;
-    int y = get_y() + ALGO_WINDOW_HEIGHT - height;
+    float height = rand() % (VALUE_RANGE + 1);
+    float x = get_x() + i * BAR_WIDTH;
+    float y = get_y() + ALGO_WINDOW_HEIGHT - height;
     Bar bar(x, y, BAR_WIDTH, height, 0, 0, 0, 255, true, BarState::NOT_SORTED);
     m_bars.push_back(bar);
   }
@@ -99,11 +99,11 @@ void Sort::selection_sort_ss() {
 void Sort::render(SDL_Renderer *renderer) {
   SDL_SetRenderDrawColor(renderer, get_red(), get_green(), get_blue(),
                          get_alpha());
-  SDL_Rect rect = {get_x(), get_y(), get_width(), get_height()};
+  SDL_FRect rect = {get_x(), get_y(), get_width(), get_height()};
   if (get_fill())
     SDL_RenderFillRect(renderer, &rect);
   else
-    SDL_RenderDrawRect(renderer, &rect);
+    SDL_RenderRect(renderer, &rect);
 
   for (auto &bar : m_bars) {
     bar.render(renderer);
@@ -113,9 +113,9 @@ void Sort::render(SDL_Renderer *renderer) {
 void Sort::randomize() {
   m_bars.clear();
   for (int i = 0; i < NUMBER_OF_BARS; i++) {
-    int height = rand() % (VALUE_RANGE + 1);
-    int x = get_x() + i * BAR_WIDTH;
-    int y = get_y() + ALGO_WINDOW_HEIGHT - height;
+    float height = rand() % (VALUE_RANGE + 1);
+    float x = get_x() + i * BAR_WIDTH;
+    float y = get_y() + ALGO_WINDOW_HEIGHT - height;
     Bar bar(x, y, BAR_WIDTH, height, 0, 0, 0, 255, true, BarState::NOT_SORTED);
     m_bars.push_back(bar);
   }

@@ -1,7 +1,5 @@
 #include "EventHandler.hpp"
 
-#include <iostream>
-
 #include "App.hpp"
 #include "Maze.hpp"
 #include "defs.hpp"
@@ -18,7 +16,7 @@ void EventHandler::handle_mouse_down() {
 
   Maze &maze = app.get_maze();
   m_mouse_button_down = true;
-  int x, y;
+  float x, y;
   SDL_GetMouseState(&x, &y);
   std::pair<int, int> cell_id = maze.get_cell_id(x, y);
   if (cell_id.first != -1) {
@@ -46,7 +44,7 @@ void EventHandler::handle_mouse_motition() {
   if (app.is_sorting_algorithm(app.get_current_algorithm())) return;
 
   Maze &maze = app.get_maze();
-  int x, y;
+  float x, y;
   SDL_GetMouseState(&x, &y);
   std::pair<int, int> cell_id = maze.get_cell_id(x, y);
   if (cell_id.first != -1) {
@@ -125,10 +123,10 @@ void EventHandler::set_event(SDL_Event event) { m_event = event; }
 // TODO: put this in in App?
 void EventHandler::handle_window_resize() {
   App &app = App::get_instance();
-  int window_width = app.get_window_width();
-  int window_height = app.get_window_height();
-  int algo_x = (window_width - ALGO_WINDOW_WIDTH) / 2;
-  int algo_y = (window_height - ALGO_WINDOW_HEIGHT) / 2;
+  float window_width = app.get_window_width();
+  float window_height = app.get_window_height();
+  float algo_x = (window_width - ALGO_WINDOW_WIDTH) / 2;
+  float algo_y = (window_height - ALGO_WINDOW_HEIGHT) / 2;
 
   std::string current_algorithm = app.get_current_algorithm();
   if (app.is_pathfinding_algorithm(current_algorithm)) {
@@ -148,8 +146,8 @@ void EventHandler::handle_window_resize() {
 
     for (int i = 0; i < NUMBER_OF_ROWS; i++) {
       for (int j = 0; j < NUMBER_OF_COLS; j++) {
-        int x = algo_x + j * CELL_WIDTH;
-        int y = algo_y + i * CELL_HEIGHT;
+        float x = algo_x + j * CELL_WIDTH;
+        float y = algo_y + i * CELL_HEIGHT;
         maze.m_maze[i][j].set_x(x);
         maze.m_maze[i][j].set_y(y);
       }
@@ -170,9 +168,9 @@ void EventHandler::handle_window_resize() {
     }
 
     for (int i = 0; i < NUMBER_OF_BARS; i++) {
-      int height = sort.m_bars[i].get_height();
-      int x = algo_x + i * BAR_WIDTH;
-      int y = algo_y + ALGO_WINDOW_HEIGHT - height;
+      float height = sort.m_bars[i].get_height();
+      float x = algo_x + i * BAR_WIDTH;
+      float y = algo_y + ALGO_WINDOW_HEIGHT - height;
       sort.m_bars[i].set_x(x);
       sort.m_bars[i].set_y(y);
     }
@@ -182,25 +180,21 @@ void EventHandler::handle_window_resize() {
 void EventHandler::handle_start_button_click() {
   App &app = App::get_instance();
   app.start();
-  std::cout << "pause Button clicked" << std::endl;
 }
 
 void EventHandler::handle_pause_button_click() {
   App &app = App::get_instance();
   app.pause();
-  std::cout << "pause Button clicked" << std::endl;
 }
 
 void EventHandler::handle_reset_button_click() {
   App &app = App::get_instance();
   app.reset();
-  std::cout << "reset Button clicked" << std::endl;
 }
 
 void EventHandler::handle_resume_button_click() {
   App &app = App::get_instance();
   app.resume();
-  std::cout << "resume Button clicked" << std::endl;
 }
 
 // TODO:

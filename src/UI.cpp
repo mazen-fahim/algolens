@@ -1,10 +1,11 @@
 #include "UI.hpp"
 
+#include <imgui.h>
+
 #include <iostream>
 
 #include "App.hpp"
 #include "EventHandler.hpp"
-#include "imgui.h"
 
 void UI::draw(EventHandler &event_handler) {
   App &app = App::get_instance();

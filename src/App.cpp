@@ -1,16 +1,14 @@
 #include "App.hpp"
 
-#include <SDL_render.h>
-
 #include <memory>
 
+#include "SDL3/SDL_video.h"
 #include "defs.hpp"
 
 const char App::window_title[] = "algolens";
 const SDL_WindowFlags App::window_flags =
-    (SDL_WindowFlags)(SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_RESIZABLE);
-const SDL_RendererFlags App::renderer_flags =
-    (SDL_RendererFlags)(SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
+    (SDL_WindowFlags)(SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN |
+                      SDL_WINDOW_OPENGL);
 
 App& App::get_instance() {
   static App instance;

@@ -1,9 +1,5 @@
 #pragma once
 
-#include <SDL.h>
-#include <SDL_rect.h>
-#include <SDL_render.h>
-
 #include "GameObject.hpp"
 
 enum class CellState {
@@ -17,8 +13,8 @@ enum class CellState {
 
 class Cell : public GameObject {
  public:
-  Cell(int x, int y, int width, int height, int red, int green, int blue,
-       int alpha, bool fill, CellState state);
+  Cell(float x, float y, float width, float height, int red, int green,
+       int blue, int alpha, bool fill, CellState state);
   void draw();
   void render(SDL_Renderer *renderer);
   ~Cell() = default;
