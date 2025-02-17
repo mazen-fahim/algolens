@@ -28,9 +28,18 @@ App::App()
       m_previous_tick_update{0},
       m_time_since_last_update{0} {
   m_supported_pf_algorithms.push_back("dfs");
+  m_algorithm_complexity["dfs"] = "O(V + E)";
   m_supported_pf_algorithms.push_back("bfs");
+  m_algorithm_complexity["bfs"] = "O(V + E)";
   m_supported_pf_algorithms.push_back("dijkstra");
+  m_algorithm_complexity["dijkstra"] = "O(V + ElogV)";
+
   m_supported_s_algorithms.push_back("selection_sort");
+  m_algorithm_complexity["selection_sort"] = "O(N^2)";
+  m_supported_s_algorithms.push_back("bubble_sort");
+  m_algorithm_complexity["bubble_sort"] = "O(N^2)";
+  m_supported_s_algorithms.push_back("insertion_sort");
+  m_algorithm_complexity["insertion_sort"] = "O(N^2)";
 }
 
 void App::create_maze() { m_maze = std::make_unique<Maze>(); }
@@ -174,4 +183,7 @@ bool App::should_update() {
     return true;
   } else
     return false;
+}
+std::string App::get_current_algorithm_complexity() {
+  return m_algorithm_complexity[m_algorithm];
 }

@@ -1,4 +1,5 @@
 #pragma once
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
@@ -80,6 +81,8 @@ class App {
   Uint32 get_delay_time();
   bool should_update();
 
+  std::string get_current_algorithm_complexity();
+
  private:
   App();
   ~App() = default;
@@ -96,6 +99,7 @@ class App {
   Uint64 m_time_since_last_update;
   Uint64 m_previous_tick_frame;
   Uint64 m_previous_tick_update;
+  std::map<std::string, std::string> m_algorithm_complexity;
 
   AlgoState m_algo_state;
 };

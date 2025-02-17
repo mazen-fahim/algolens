@@ -2,8 +2,6 @@
 
 #include <imgui.h>
 
-#include <iostream>
-
 #include "App.hpp"
 #include "EventHandler.hpp"
 
@@ -65,7 +63,8 @@ void UI::draw_overlay() {
   ImGui::SetNextWindowBgAlpha(1.00f);
 
   ImGui::Begin("Example: Simple overlay", NULL, window_flags);
-  ImGui::Text("Algorithm: %s\n", app.get_current_algorithm().c_str());
+  ImGui::Text("Algorithm: %s %s\n", app.get_current_algorithm().c_str(),
+              app.get_current_algorithm_complexity().c_str());
   ImGui::Separator();
 
   if (app.is_pathfinding_algorithm(app.get_current_algorithm())) {
@@ -148,7 +147,6 @@ void UI::draw_combo(EventHandler &event_handler) {
     }
     if (item_selected_idx != item_selected_idx_prv) {
       event_handler.handle_algorithm_change(algorithms[item_selected_idx]);
-      std::cout << "change" << std::endl;
       item_selected_idx_prv = item_selected_idx;
     }
     ImGui::EndCombo();

@@ -34,6 +34,8 @@ class Sort : public GameObject {
   int m_number_of_comparisons;
   void randomize();
   void selection_sort_ss();
+  void bubble_sort_ss();
+  void insertion_sort_ss();
   int m_i;
   int m_j;
   int m_min_idx;

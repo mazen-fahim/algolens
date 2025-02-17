@@ -46,12 +46,96 @@ void Sort::draw() {
     if (algo_state == AlgoState::ALGORITHM_RUN) {
       if (current_algorithm == "selection_sort") {
         selection_sort_ss();
+      } else if (current_algorithm == "bubble_sort") {
+        bubble_sort_ss();
+      } else if (current_algorithm == "insertion_sort") {
+        insertion_sort_ss();
       }
     }
   }
 
   for (auto &bar : m_bars) {
     bar.draw();
+  }
+}
+
+void Sort::insertion_sort_ss() {
+  App &app = App::get_instance();
+
+  // Unmark previously compared elements before the next iteration
+  // Note: unmark only if it wasn't marked as
+  // sorted in the last iteration
+  m_bars[m_j_prv].set_state(BarState::SORTED);
+  m_bars[m_j_prv + 1].set_state(BarState::SORTED);
+
+  m_bars[m_j].set_state(BarState::BEING_COMPARED);
+  m_bars[m_j + 1].set_state(BarState::BEING_COMPARED);
+  m_number_of_comparisons++;
+  if (m_j >= 0 && m_bars[m_j].get_height() > m_bars[m_j + 1].get_height()) {
+    swap_bars(m_bars[m_j], m_bars[m_j + 1]);
+
+    m_j_prv = m_j;
+    m_j--;
+
+  } else {
+    m_i_prv = m_i;
+    m_i++;
+
+    if (m_i < NUMBER_OF_BARS) {
+      m_j_prv = m_j;
+      m_j = m_i - 1;
+
+    } else {
+      // set the last bar as sorted before finishing
+      app.set_algo_state(AlgoState::FINISH);
+      m_bars[m_j].set_state(BarState::SORTED);
+      m_bars[m_j + 1].set_state(BarState::SORTED);
+      m_bars[0].set_state(BarState::SORTED);
+    }
+  }
+}
+
+void Sort::bubble_sort_ss() {
+  App &app = App::get_instance();
+
+  // Unmark previously compared elements before the next iteration
+  // Note: unmark only if it wasn't marked as
+  // sorted in the last iteration
+  if (m_j_prv < NUMBER_OF_BARS &&
+      m_bars[m_j_prv].get_state() != BarState::SORTED)
+    m_bars[m_j_prv].set_state(BarState::NOT_SORTED);
+
+  if (m_j_prv + 1 < NUMBER_OF_BARS &&
+      m_bars[m_j_prv + 1].get_state() != BarState::SORTED)
+    m_bars[m_j_prv + 1].set_state(BarState::NOT_SORTED);
+
+  if (m_j < NUMBER_OF_BARS - m_i - 1) {
+    m_bars[m_j].set_state(BarState::BEING_COMPARED);
+    m_bars[m_j + 1].set_state(BarState::BEING_COMPARED);
+    m_number_of_comparisons++;
+
+    if (m_bars[m_j].get_height() > m_bars[m_j + 1].get_height()) {
+      swap_bars(m_bars[m_j], m_bars[m_j + 1]);
+    }
+
+    m_j_prv = m_j;
+    m_j++;
+
+  } else {
+    m_bars[m_j].set_state(BarState::SORTED);
+
+    m_i_prv = m_i;
+    m_i++;
+
+    if (m_i < NUMBER_OF_BARS - 1) {
+      m_j_prv = m_j;
+      m_j = 0;
+
+    } else {
+      // set the last bar as sorted before finishing
+      m_bars[0].set_state(BarState::SORTED);
+      app.set_algo_state(AlgoState::FINISH);
+    }
   }
 }
 
@@ -135,6 +219,12 @@ void Sort::start(std::string algorithm) {
     m_i = 0;
     m_min_idx = m_i;
     m_j = m_i + 1;
+  } else if (algorithm == "bubble_sort") {
+    m_i = 0;
+    m_j = 0;
+  } else if (algorithm == "insertion_sort") {
+    m_i = 1;
+    m_j = 0;
   }
 }
 
@@ -142,8 +232,11 @@ void Sort::reset() {
   m_number_of_comparisons = 0;
   m_bars.clear();
   m_i = 0;
+  m_i_prv = 0;
   m_j = 0;
+  m_j_prv = 0;
   m_min_idx = 0;
+  m_min_idx_prv = 0;
   randomize();
 }
 
