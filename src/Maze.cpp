@@ -63,9 +63,6 @@ void Maze::draw() {
       } else if (current_algorithm == "bfs") {
         bfs_ss();
       }
-      // else if (m_algorithm == "dijkstra") {
-      //    dijkstra_ss();
-      //  }
     }
 
     else if (algo_state == AlgoState::PATH_RUN) {
@@ -256,15 +253,12 @@ void Maze::start(std::string algorithm) {
     m_dfs_stk.push(m_source);
   else if (algorithm == "bfs")
     m_bfs_q.push(m_source);
-  else if (algorithm == "dijkstra")
-    m_dijkstra_q.push(m_source);
 }
 
 void Maze::reset() {
   m_path_length = 0;
   m_path_index = 0;
   while (!m_dfs_stk.empty()) m_dfs_stk.pop();
-  while (!m_dijkstra_q.empty()) m_dijkstra_q.pop();
   while (!m_bfs_q.empty()) m_bfs_q.pop();
   m_path.clear();
   for (int i = 0; i < NUMBER_OF_ROWS; i++) {

@@ -31,8 +31,6 @@ App::App()
   m_algorithm_complexity["dfs"] = "O(V + E)";
   m_supported_pf_algorithms.push_back("bfs");
   m_algorithm_complexity["bfs"] = "O(V + E)";
-  m_supported_pf_algorithms.push_back("dijkstra");
-  m_algorithm_complexity["dijkstra"] = "O(V + ElogV)";
 
   m_supported_s_algorithms.push_back("selection_sort");
   m_algorithm_complexity["selection_sort"] = "O(N^2)";

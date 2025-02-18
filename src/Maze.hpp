@@ -55,9 +55,7 @@ class Maze : public GameObject {
 
   std::stack<std::pair<int, int>> m_dfs_stk;
   std::queue<std::pair<int, int>> m_bfs_q;
-  std::queue<std::pair<int, int>> m_dijkstra_q;
 
-  void dijkstra_ss();
   bool is_valid(std::pair<int, int> cell_id);
   bool is_inside(float x, float y);
   bool is_not_visited(std::pair<int, int> cell_id);
